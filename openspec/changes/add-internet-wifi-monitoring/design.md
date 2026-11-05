@@ -25,6 +25,7 @@ Constraints that shape the approach:
 - A general-purpose metrics platform (Prometheus or Grafana style). History serves diagnosis and the views, not arbitrary querying.
 - Multi-yacht or tenant concepts in the data model, beyond not hard-coding anything that would block them later.
 - Internationalisation. Text is English in this change, though explanation templates are kept separate from code so translation remains possible.
+- Protection against a determined, skilled attacker with physical possession of the running appliance. This change stops casual copying and disk removal. A compiled build and a hardware-bound licence check are deferred to a later change (see D11).
 
 ## Decisions
 
@@ -99,7 +100,7 @@ Pages are rendered on the server with Jinja2. htmx handles partial updates, and 
 - Sessions use server-side records with `HttpOnly`, `Secure` and `SameSite=Strict` cookies, plus a CSRF token on forms. The idle timeout defaults to 12 hours for crew and 2 hours for engineers.
 - The role check is enforced on the server for every engineer route and API.
 - Sign-in throttling: five failures in ten minutes locks that account for fifteen minutes.
-- Device credentials are encrypted with Fernet. The key is generated on first run and stored in `/data/secret.key` (mode 0600) inside the container user's volume. This protects credentials in exported or backed-up databases. It does **not** protect against someone with root on the host, and that is documented.
+- Device credentials are encrypted with Fernet. The key is generated on first run and stored in `/data/secret.key` (mode 0600) inside the container user's volume. This protects credentials in exported or backed-up databases. It does **not** protect against someone with root on the host, and that is documented. Under the appliance model (D11), only 50N has root, and full-disk encryption protects the whole volume if the disk is removed.
 - TLS: a self-signed certificate is generated on first run and served directly by Uvicorn. An engineer can upload a replacement certificate.
 - The container runs as a non-root user.
 
@@ -151,10 +152,23 @@ Discovery assists the guided setup; it does not replace it (`device-inventory`).
   - Fully automatic adoption was rejected because it conflicts with the honesty principle and would fill the inventory with guest phones.
   - An external scanner such as nmap was rejected because it is heavier than needed and harder to keep non-intrusive.
 
-### D11. Verification before building on an interface
+### D11. Managed appliance to protect the code
+Insight ships in readable Python inside a Docker image, so the protection comes from controlling the box rather than from the code itself:
+
+- **Ownership and access.** 50N owns the mini-PC. It runs Debian stable with a single `50n-admin` account. Only that account is in the `docker` group, since Docker access amounts to root. There are no client accounts, and the client's only interface is Insight's web UI.
+- **SSH.** Key-only, using 50N keys. `PasswordAuthentication no`, `PermitRootLogin no`. SSH is reachable only through 50N's existing remote-access route.
+- **Disk encryption.** LUKS2 full-disk encryption, with the key enrolled in the TPM 2.0 (`systemd-cryptenroll`) and bound to PCR 7 (the Secure Boot policy). This allows unattended boot after power cuts and survives most firmware updates. The recovery key goes into 50N's password manager, with one per appliance.
+- **Boot lock.** Secure Boot is on, the firmware admin password is held by 50N, USB and network boot are disabled, and the boot order is locked to the internal disk.
+- **Repeatable provisioning.** A single provisioning playbook (Ansible) builds every appliance the same way, including Docker, NTP from the Peplink, unattended security upgrades, the SSH policy and encryption enrolment. That keeps the hardening identical on every box and auditable.
+- **Licence notice.** A proprietary `LICENSE` in the repository; a copyright and licence notice on the sign-in and about pages; and an OCI image label. The contract terms are the legal backstop.
+- **Alternatives:**
+  - Shipping the software for the client to install was rejected because it hands over the code.
+  - A compiled build (Nuitka) and a signed, hardware-bound licence are deferred. They add protection against someone who already has root, at the cost of harder on-board debugging and the risk that a licence check fails while the boat is offline.
+
+### D12. Verification before building on an interface
 Task 1 verifies each interface against the real firmware versions on board, or vendor documentation where the kit isn't available. It records what each interface exposes, its authentication, licensing, polling limits and response samples in `docs/integrations/<vendor>.md`. Those samples become the adapters' test fixtures. Where an interface does not provide something the specs mark "where available", the adapter reports it as not available; the specs do not change.
 
-### D12. Developing without the yacht
+### D13. Developing without the yacht
 Recorded fixtures drive adapter tests. A **simulator source**, enabled by a setting, replays scripted scenarios such as failover, AP PoE loss, dish obstruction and controller outage through the full pipeline. This drives rule tests and lets the UI be developed and demonstrated on shore.
 
 ## Risks / Trade-offs
@@ -170,6 +184,9 @@ Recorded fixtures drive adapter tests. A **simulator source**, enabled by a sett
 - **[Self-signed certificate warnings]** → Expected on first use. The install guide covers trusting the certificate or uploading one.
 - **[Active discovery disturbs fragile equipment or trips intrusion detection]** → It runs only on request, on selected subnets, rate-limited, with connect-only port checks and no SNMP or log-in attempts. The install guide advises excluding AV and bridge subnets and informing the yacht's IT contact before a run.
 - **[Fingerprints misidentify a device]** → Results are suggestions with a confidence level and evidence, and nothing enters the inventory without an engineer accepting it.
+- **[A firmware update changes the TPM measurements and the disk will not unlock]** → Binding to PCR 7 only reduces this. 50N holds a per-appliance recovery key. Firmware updates are done by 50N, with the recovery key to hand. If crew must enter the key in an emergency, it is rotated afterwards.
+- **[Someone steals the whole running appliance]** → It boots, but only to Insight's login; there is no shell access and USB boot is disabled. Advanced attacks such as memory or TPM-bus extraction are accepted as out of scope for now (see Non-Goals).
+- **[Code is readable to anyone who gains root]** → Accepted for this change. Root is held by 50N only. A compiled build is the next step if needed.
 - **[Rules tuned on assumptions, not real data]** → Thresholds are settings, not constants. The first weeks on board serve as a tuning period, with the timeline used to review false positives.
 
 ## Migration Plan
@@ -177,7 +194,7 @@ Recorded fixtures drive adapter tests. A **simulator source**, enabled by a sett
 This is a greenfield build, so there is no existing data to migrate.
 
 **Install:**
-1. Prepare the mini-PC with Linux, Docker and NTP pointing at the Peplink, and connect it to the UPS.
+1. Provision the mini-PC with the appliance playbook (D11), set the firmware password and Secure Boot, record the recovery key, and connect it to the UPS.
 2. Place the Compose file and run `docker compose up -d`.
 3. Create the engineer account.
 4. Add the sources.

@@ -134,17 +134,25 @@
 - [ ] 18.5 Build the configuration screens: source setup, credentials, locations and service mapping, Starlink link marking, probes, retention, ship's time, users and the certificate. Verify view tests that each setting saves and takes effect.
 - [ ] 18.6 Check slow-link behaviour: measure page weight and confirm history is fetched by range. Verify that a scripted check keeps the findings and timeline pages under the agreed size budget, e.g. 200 KB excluding cached assets.
 
-## 19. Release and install
+## 19. Managed appliance and licence notice
 
-- [ ] 19.1 Publish multi-tag images to the registry from CI, and attach a `docker save` tarball to each release. Verify a release build produces both.
-- [ ] 19.2 Write `docs/install.md`. It covers mini-PC preparation (Linux, Docker, NTP from the Peplink, UPS power), Compose setup, first run, source setup, the Peplink static route to the dish, Unleashed syslog, trusting the certificate, and a link to `docs/discovery.md` before the first discovery run. Verify by following it on a clean VM to a working install against the simulator.
-- [ ] 19.3 Write `docs/upgrade.md` covering online pull, offline `docker load`, the automatic pre-migration backup and rollback. Verify by upgrading and rolling back on a test VM with data intact.
+- [ ] 19.1 Add a proprietary `LICENSE` (all rights reserved, 50N Systems; wording to be legally reviewed), a copyright and licence notice on the sign-in page and an about page available to all users, and an OCI licence label on the image. Verify a test that the sign-in and about pages show the notice, and that `docker inspect` shows the label.
+- [ ] 19.2 Write the appliance provisioning playbook (Ansible) for Debian stable. It installs Docker, sets NTP from the Peplink and unattended security upgrades, creates a single `50n-admin` account that is the only member of `docker`, and applies an SSH policy that is key-only with no root login. Verify on a clean VM that password SSH and root SSH are refused, and that only `50n-admin` can run `docker ps`.
+- [ ] 19.3 Add full-disk encryption (LUKS2) with TPM 2.0 auto-unlock bound to PCR 7, and generate and record the recovery key. Verify on a test mini-PC that it boots unattended after a power cut, that the disk is unreadable when attached to another machine, and that the recovery key unlocks it.
+- [ ] 19.4 Write the firmware lock checklist: Secure Boot on, firmware password set, USB and network boot disabled, boot order locked. Verify on a test mini-PC that a USB boot attempt fails and that firmware settings require the password.
+- [ ] 19.5 Write `docs/appliance.md` covering provisioning, the firmware checklist, recovery key storage and rotation, who holds SSH keys and firmware passwords, the firmware-update procedure, and a summary of what the client does and does not get access to, for client agreements. Verify by provisioning a second test unit from the doc alone.
 
-## 20. Integration checks
+## 20. Release and install
 
-- [ ] 20.1 Run an end-to-end test with the simulator: on a fresh container, create the first account, add simulator sources, then play every scenario. Verify the expected findings, statuses, timeline events and crew wording all appear, and that data survives a container restart and an image upgrade.
-- [ ] 20.2 Run an offline check: with outbound internet blocked on the host, the container starts, the UI fully loads, and diagnosis continues. Verify by running the end-to-end test with networking restricted.
-- [ ] 20.3 Commission on board against the real Peplink, UniFi, Ruckus and Starlink kit. Verify each source collects, the inventory and topology are correct, and induced test conditions produce the expected findings. Unplugging an AP should give a PoE or AP-offline finding; disabling the Starlink WAN should give a failover finding.
+- [ ] 20.1 Publish multi-tag images to the registry from CI, and attach a `docker save` tarball to each release. Verify a release build produces both.
+- [ ] 20.2 Write `docs/install.md`. It covers on-board installation of a provisioned appliance (per `docs/appliance.md`, with UPS power), Compose setup, first run, source setup, the Peplink static route to the dish, Unleashed syslog, trusting the certificate, and a link to `docs/discovery.md` before the first discovery run. Verify by following it on a clean VM to a working install against the simulator.
+- [ ] 20.3 Write `docs/upgrade.md` covering online pull, offline `docker load`, the automatic pre-migration backup and rollback. Verify by upgrading and rolling back on a test VM with data intact.
+
+## 21. Integration checks
+
+- [ ] 21.1 Run an end-to-end test with the simulator: on a fresh container, create the first account, add simulator sources, then play every scenario. Verify the expected findings, statuses, timeline events and crew wording all appear, and that data survives a container restart and an image upgrade.
+- [ ] 21.2 Run an offline check: with outbound internet blocked on the host, the container starts, the UI fully loads, and diagnosis continues. Verify by running the end-to-end test with networking restricted.
+- [ ] 21.3 Commission on board against the real Peplink, UniFi, Ruckus and Starlink kit. Verify each source collects, the inventory and topology are correct, and induced test conditions produce the expected findings. Unplugging an AP should give a PoE or AP-offline finding; disabling the Starlink WAN should give a failover finding.
 
 ## Workflow follow-up
 

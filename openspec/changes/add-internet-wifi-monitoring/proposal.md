@@ -9,6 +9,7 @@ Insight, by 50N Systems, closes that gap. It brings data from those systems toge
 ## What Changes
 
 - Introduce Insight as a self-contained application that runs on board in a Docker container on a dedicated mini-PC. It works fully without an internet connection.
+- Supply the mini-PC as a 50N-owned, managed appliance that protects Insight's code. The client gets the web interface only, with no OS, shell or Docker access. Remote shell access is key-only and 50N-only. The disk is fully encrypted and unlocks automatically via the TPM. Boot is locked with Secure Boot, a firmware password and USB boot disabled. Insight shows a proprietary licence notice. A compiled build and a hardware-bound licence check are deferred to a later change.
 - Add a vendor-neutral data collection framework. Each vendor has its own read-only adapter feeding a common internal model, and Insight distinguishes "the system is faulty" from "Insight cannot currently see the system".
 - Add read-only integrations for:
   - **Peplink** routers: WAN links, link health checks, failover and usage.
@@ -30,7 +31,7 @@ Insight, by 50N Systems, closes that gap. It brings data from those systems toge
 ## Capabilities
 
 ### New Capabilities
-- `deployment`: packaging and running Insight as a Docker container on a dedicated on-board host, including persistent data, automatic restart, health checks and offline-capable updates.
+- `deployment`: packaging and running Insight as a Docker container on a dedicated on-board host, including persistent data, automatic restart, health checks and offline-capable updates; and the managed-appliance protections (access restrictions, disk encryption, boot lock, licence notice).
 - `access-control`: local user accounts, crew and engineer roles, authentication and protection of stored device credentials.
 - `device-inventory`: guided setup of integration sources, assisted by passive and engineer-started discovery; a device inventory populated from those sources and from accepted discoveries; manual location and service tagging; and the services (Internet, Guest Wi-Fi, Crew Wi-Fi) that devices make up.
 - `data-collection`: the adapter framework, the common vendor-neutral data model, read-only polling, separating reliable from optional (unofficial) data sources, and detecting monitoring failures.
@@ -53,6 +54,7 @@ Insight, by 50N Systems, closes that gap. It brings data from those systems toge
 - **Code:** a new application in an empty repository: backend service, adapters, diagnostic rules, web UI, and Docker packaging.
 - **Dependencies:** a Python runtime (proposed in design.md), a Ruckus Unleashed client library, an SNMP library, an embedded SQLite database, and Docker and Docker Compose on the host.
 - **On-board systems:** read-only API or SNMP credentials are needed for the Peplink router, the UniFi Network controller and Ruckus Unleashed. Ruckus may also need syslog forwarding to Insight. Insight needs network access to the management addresses of those devices and of the Starlink dish.
-- **Hardware:** one fanless mini-PC in the comms rack, powered from the UPS, running Linux with Docker and NTP.
+- **Hardware:** one fanless mini-PC with a TPM 2.0 chip and Secure Boot support, owned by 50N, in the comms rack, powered from the UPS, running Linux with Docker and NTP.
+- **Commercial:** client agreements need licence terms covering 50N's ownership of the software and appliance, and prohibiting copying and reverse engineering. This is outside the software, and the terms need legal review.
 - **Operations:** 50N maintains the mini-PC's OS and Insight's updates. Remote engineers use 50N's existing remote-access route.
 - **Risks:** the Starlink and Ruckus enrichment uses unofficial interfaces that can change after firmware updates. The UniFi integration depends on a reachable UniFi Network controller.
