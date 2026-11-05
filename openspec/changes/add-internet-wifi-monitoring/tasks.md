@@ -55,9 +55,9 @@
 
 ## 8. UniFi adapter
 
-- [ ] 8.1 Implement the UniFi controller adapter for switch details, port state and counters, PoE per port and budget, LLDP neighbours and uplinks, mapped into the common model, using the reliable/optional split decided in task 1.2. Verify parser tests against the task 1.2 samples.
-- [ ] 8.2 Implement the SNMP fallback for UniFi switches (availability, port state, traffic; PoE and LLDP where available). Verify parser tests against the recorded SNMP walks.
-- [ ] 8.3 Feed neighbour and uplink data into the topology graph. Verify a test that links a Ruckus AP to its UniFi switch port from a fixture.
+- [x] 8.1 Implement the UniFi controller adapter for switch details, port state and counters, PoE per port and budget, LLDP neighbours and uplinks, mapped into the common model, using the reliable/optional split decided in task 1.2. Verify parser tests against the task 1.2 samples.
+- [x] 8.2 Implement the SNMP fallback for UniFi switches (availability, port state, traffic; PoE and LLDP where available). Verify parser tests against the recorded SNMP walks.
+- [x] 8.3 Feed neighbour and uplink data into the topology graph. Verify a test that links a Ruckus AP to its UniFi switch port from a fixture.
 
 ## 9. Ruckus Unleashed adapter
 

@@ -45,3 +45,7 @@ The file name suffix gives the provenance: `.official-example`, `.aiounifi` / `.
 ## Licences
 
 aiounifi: MIT, © 2018 Robert Svensson. unpoller/unifi: MIT, © 2018-2020 David Newhall II, © 2016 Garrett Bjerkhoel. The copied fixtures keep those licences.
+
+## snmp-walk-usw-pro.constructed.json
+
+Constructed by hand from the standard IF-MIB, IF-MIB ifXTable and LLDP-MIB `lldpRemTable` OIDs listed in `docs/integrations/unifi.md` ("SNMP fallback"), as an SNMP GET of the system group plus walks of those tables on a USW-Pro-24-PoE. Not a capture. It includes one VLAN interface that Insight should ignore, and an LLDP neighbour (a Ruckus AP) on port 12.
