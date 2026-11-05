@@ -58,6 +58,8 @@ class Runtime:
         self.evaluation_interval = 15.0
         self.status_tracker = StatusTracker(self.config.get("last_statuses") or {})
         self.last_report: HealthReport | None = None
+        self.version = 0  # bumped whenever what the views show may have changed
+        self.last_evaluated_at: datetime | None = None
         self.discovery = DiscoveryStore(self.db, self.writer, self.inventory)
         self.discovery_run: Any = None
         self._listeners: list[asyncio.BaseTransport] = []
@@ -192,6 +194,8 @@ class Runtime:
         if changes:
             self.config.set("last_statuses", self.status_tracker.last)
         events.extend(changes)
+        self.last_evaluated_at = ctx.now
+        self.version += 1
         if events:
             self.writer.add_events(events, systems=("insight",))
             self.recent_events.extend(events)

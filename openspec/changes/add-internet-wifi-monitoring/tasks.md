@@ -121,9 +121,9 @@
 
 ## 17. Crew dashboard
 
-- [ ] 17.1 Build the shared UI foundation: layout, design tokens for light and dark themes, a professional marine visual style, local assets only (vendored htmx and uPlot), and SSE live updates with a polling fallback. Verify a test that a page load makes no external requests, and manually check both themes.
-- [ ] 17.2 Build the crew dashboard: overall and service status first, active issues sorted by severity with crew explanations and an action-needed statement, a recently resolved section covering 24 hours, last-updated time and a stale-data notice. Verify view tests against simulator scenarios.
-- [ ] 17.3 Verify mobile usability with Playwright screenshots at phone, tablet and desktop widths: no horizontal scrolling, and status and issues readable.
+- [x] 17.1 Build the shared UI foundation: layout, design tokens for light and dark themes, a professional marine visual style, local assets only (vendored htmx and uPlot), and SSE live updates with a polling fallback. Verify a test that a page load makes no external requests, and manually check both themes.
+- [x] 17.2 Build the crew dashboard: overall and service status first, active issues sorted by severity with crew explanations and an action-needed statement, a recently resolved section covering 24 hours, last-updated time and a stale-data notice. Verify view tests against simulator scenarios.
+- [x] 17.3 Verify mobile usability with Playwright screenshots at phone, tablet and desktop widths: no horizontal scrolling, and status and issues readable.
 
 ## 18. Engineer console
 

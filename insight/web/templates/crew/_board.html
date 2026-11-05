@@ -1,0 +1,71 @@
+<div id="board" hx-get="/partials/board" hx-trigger="insight:refresh from:body" hx-swap="outerHTML">
+  {% if stale %}
+  <p class="alert alert-degraded" role="status">This information may be out of date: Insight hasn't refreshed it {% if last_updated %}since {{ last_updated | shiptime }}{% else %}yet{% endif %}.</p>
+  {% endif %}
+
+  <section class="card overall is-{{ report.overall.status.value }}" aria-labelledby="overall-title">
+    <div>
+      <p class="overall-title" id="overall-title">Yacht systems</p>
+      <p class="overall-status"><span class="status status-{{ report.overall.status.value }}">{{ report.overall.status.value }}</span></p>
+      <p class="muted">{% if report.overall.status.value == "UNKNOWN" %}Insight can't currently check the yacht's systems.{% elif report.active_issues %}{{ report.active_issues }} active issue{{ "s" if report.active_issues != 1 }}.{% else %}Everything is working normally.{% endif %}</p>
+    </div>
+    <p class="updated">Updated {{ last_updated | shiptime if last_updated else "never" }}</p>
+  </section>
+
+  <section class="grid grid-3" aria-label="Services">
+    {% for svc in report.services %}
+    <article class="card service">
+      <div class="service-head">
+        <span class="service-name">{{ svc.name }}</span>
+        <span class="status status-{{ svc.status.value }}">{{ svc.status.value }}</span>
+      </div>
+      <p class="muted">
+        {% if svc.status.value == "HEALTHY" %}Working normally.
+        {% elif svc.status.value == "UNKNOWN" and not svc.set_up %}Not set up yet.
+        {% elif svc.status.value == "UNKNOWN" %}Insight can't currently check this.
+        {% else %}{{ svc.findings | length }} issue{{ "s" if svc.findings | length != 1 }} affecting it.{% endif %}
+      </p>
+    </article>
+    {% endfor %}
+  </section>
+
+  <section aria-labelledby="issues-title">
+    <h2 id="issues-title">Active issues <span class="count">{{ issues | length }}</span></h2>
+    {% if not issues %}<p class="card muted">No active issues.</p>{% endif %}
+    {% for f in issues %}
+    {% set action = actions[f.action] %}
+    <article class="card issue sev-{{ f.severity.value }}">
+      <div class="issue-head">
+        <h3 class="issue-title">{{ f.title }}</h3>
+        <span class="updated">Since {{ f.first_detected_at | shiptime }}</span>
+      </div>
+      <div class="tags">
+        <span class="tag">{{ f.severity.value | capitalize }}</span>
+        {% if f.confidence.value != "confirmed" %}<span class="tag">Not certain</span>{% endif %}
+        {% if f.intermittent %}<span class="tag">Keeps coming back</span>{% endif %}
+        {% for s in f.services %}<span class="tag">{{ {"internet": "Internet", "guest_wifi": "Guest Wi-Fi", "crew_wifi": "Crew Wi-Fi"}.get(s, s) }}</span>{% endfor %}
+        {% if f.guests_affected %}<span class="tag tag-guests">Guests affected</span>{% endif %}
+      </div>
+      <p>{{ f.crew_text }}</p>
+      <p class="action action-{{ action[0] }}">{{ action[1] }}</p>
+    </article>
+    {% endfor %}
+  </section>
+
+  {% if monitoring %}
+  <section aria-labelledby="monitoring-title">
+    <h2 id="monitoring-title">What Insight can't check right now</h2>
+    {% for f in monitoring %}
+    <p class="notice">{{ f.crew_text }}</p>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  <section aria-labelledby="resolved-title" class="card">
+    <h2 id="resolved-title">Resolved in the last 24 hours <span class="count">{{ resolved | length }}</span></h2>
+    {% if not resolved %}<p class="muted">Nothing resolved recently.</p>{% endif %}
+    <ul class="plain">
+      {% for f in resolved %}<li><strong>{{ f.title }}</strong> <span class="muted">from {{ f.first_detected_at | shiptime }} to {{ f.resolved_at | shiptime }}</span></li>{% endfor %}
+    </ul>
+  </section>
+</div>
