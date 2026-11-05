@@ -34,3 +34,23 @@ def test_healthz_unhealthy_when_no_cycle_after_grace(runtime: Runtime) -> None:
     response = client.get("/healthz")
     assert response.status_code == 503
     assert response.json()["status"] == "unhealthy"
+
+
+async def test_stalled_scheduler_reports_unhealthy(runtime: Runtime) -> None:
+    import asyncio
+
+    from tests.test_scheduler import Fake, source
+
+    runtime.scheduler.add(Fake(source("fast", interval=0.05)))
+    client = TestClient(create_app(runtime))
+    await runtime.start_background()
+    await asyncio.sleep(0.3)
+    assert client.get("/healthz").status_code == 200
+    assert runtime.last_cycle_at is not None
+    # Stall collection: no cycles complete any more.
+    await runtime.scheduler.stop()
+    await asyncio.sleep(0.4)
+    response = client.get("/healthz")
+    assert response.status_code == 503
+    assert response.json()["status"] == "unhealthy"
+    await runtime.stop_background()

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "1",
+    "name": "Guest",
+    "ssid": "Guest",
+    "description": "Guest Wi-Fi",
+    "authentication": "open",
+    "encryption": "wpa23-mixed",
+    "is-guest": "false",
+    "usage": "user",
+    "vlan-id": "30",
+    "close-system": "false",
+    "client-isolation": "enabled",
+    "max-clients-per-radio": "100",
+    "enable-type": "0",
+    "wlan_bind": "0",
+    "wpa": {
+      "cipher": "aes",
+      "dynamic-psk": "disabled"
+    }
+  },
+  {
+    "id": "2",
+    "name": "Crew",
+    "ssid": "Crew",
+    "description": "Crew Wi-Fi",
+    "authentication": "open",
+    "encryption": "wpa2",
+    "is-guest": "false",
+    "usage": "user",
+    "vlan-id": "20",
+    "close-system": "false",
+    "client-isolation": "disabled",
+    "max-clients-per-radio": "100",
+    "enable-type": "0",
+    "wlan_bind": "0",
+    "wpa": {
+      "cipher": "aes",
+      "dynamic-psk": "disabled"
+    }
+  }
+]

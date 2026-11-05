@@ -13,7 +13,7 @@
 - [x] 2.1 Create the Python 3.12 project: `pyproject.toml`, the `insight/` package layout, linting (ruff), type checking (mypy) and pytest. Verify `pytest` and `ruff check` run cleanly on the empty project.
 - [x] 2.2 Add a FastAPI app with a `/healthz` endpoint that reports the version and the time of the last collection cycle, with no yacht data. Verify with a test that `/healthz` returns the version and no inventory or finding data.
 - [x] 2.3 Write a Dockerfile (`python:3.12-slim`, non-root user, `HEALTHCHECK` calling `/healthz`) and `compose.yaml`: host networking, `restart: unless-stopped`, the `insight-data:/data` volume, and the `NET_RAW` and `NET_BIND_SERVICE` capabilities. Verify `docker compose up` starts the container and it reports healthy.
-- [ ] 2.4 Add a CI workflow that runs lint, type checks and tests, then builds the image. Verify the workflow passes on the branch.
+- [x] 2.4 Add a CI workflow that runs lint, type checks and tests, then builds the image. Verify the workflow passes on the branch.
 
 ## 3. Storage and common model
 
@@ -35,11 +35,11 @@
 
 ## 5. Collection framework and simulator
 
-- [ ] 5.1 Implement the adapter interface and scheduler: one task per source, per-source intervals with jitter, timeouts, and isolation so one adapter's failure doesn't affect others. Verify a test in which a hanging adapter does not delay a second adapter's cycles.
-- [ ] 5.2 Implement monitoring-failure detection for unreachable sources, authentication failures and unparseable data, including staleness marking and recovery events. Verify tests for each failure type and for recovery.
-- [ ] 5.3 Implement the reliable/optional classification: an optional adapter failing never blocks reliable collection. Verify a test in which an optional adapter raises errors while reliable data keeps updating.
+- [x] 5.1 Implement the adapter interface and scheduler: one task per source, per-source intervals with jitter, timeouts, and isolation so one adapter's failure doesn't affect others. Verify a test in which a hanging adapter does not delay a second adapter's cycles.
+- [x] 5.2 Implement monitoring-failure detection for unreachable sources, authentication failures and unparseable data, including staleness marking and recovery events. Verify tests for each failure type and for recovery.
+- [x] 5.3 Implement the reliable/optional classification: an optional adapter failing never blocks reliable collection. Verify a test in which an optional adapter raises errors while reliable data keeps updating.
 - [ ] 5.4 Implement the simulator source, which replays scripted scenarios (failover, AP PoE loss, dish obstruction, controller outage, DNS failure) through the full pipeline. Verify that the simulator runs each scenario and emits the expected events.
-- [ ] 5.5 Wire the collection-cycle timestamp into `/healthz` so the container reports unhealthy after three missed intervals. Verify a test that stalls the scheduler and expects an unhealthy response.
+- [x] 5.5 Wire the collection-cycle timestamp into `/healthz` so the container reports unhealthy after three missed intervals. Verify a test that stalls the scheduler and expects an unhealthy response.
 
 ## 6. Device inventory and setup
 
