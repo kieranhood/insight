@@ -729,6 +729,7 @@ class SimulatorAdapter(Adapter):
             "baseline_ms": 180.0,
         }
         snap.facts["probe.wan_in_use"] = in_use[0].name if in_use else None
+        snap.facts["probe.dish"] = {"address": "192.168.100.1:9200", "reachable": w.dish.reachable}
         if p.internet_ok:
             snap.metrics.append(
                 Metric(

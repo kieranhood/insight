@@ -53,9 +53,18 @@ class Runtime:
         self.last_cycle_at = at or utcnow()
 
     def load_sources(self) -> None:
-        """Create adapters for every enabled configured source."""
+        """Create adapters for every enabled configured source, plus Insight's own probes."""
         from insight.collection import registry
+        from insight.probes import ProbesAdapter, probes_source
 
+        if not any(
+            s.kind == "simulator" and s.options.get("role") == "probes" for s in self.sources.list()
+        ):
+            self.scheduler.add(
+                ProbesAdapter(
+                    probes_source(), inventory=self.inventory, config=self.config, state=self.state
+                )
+            )
         for source in self.sources.list():
             if source.enabled:
                 self.scheduler.add(registry.build(source))

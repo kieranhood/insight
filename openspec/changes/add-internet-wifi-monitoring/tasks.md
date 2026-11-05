@@ -73,10 +73,10 @@
 
 ## 11. Connectivity probes
 
-- [ ] 11.1 Implement device reachability probes for all inventory devices with an IP address, with a consecutive-failure threshold. Verify tests that one lost check does not mark a device unreachable but consecutive failures do.
-- [ ] 11.2 Implement internet reachability probes against several configurable targets, reporting loss only when all targets fail. Verify a test with one target failing and a test with all failing.
-- [ ] 11.3 Implement DNS probes via the system resolver and an independent public resolver. Verify a test that the local-fail/public-succeed case produces the "DNS failing while IP works" evidence.
-- [ ] 11.4 Implement HTTP probes with response-time baselines, label every probe result with the WAN link in use, and provide default targets and editable settings. Verify tests for the slowdown evidence and for link labelling.
+- [x] 11.1 Implement device reachability probes for all inventory devices with an IP address, with a consecutive-failure threshold. Verify tests that one lost check does not mark a device unreachable but consecutive failures do.
+- [x] 11.2 Implement internet reachability probes against several configurable targets, reporting loss only when all targets fail. Verify a test with one target failing and a test with all failing.
+- [x] 11.3 Implement DNS probes via the system resolver and an independent public resolver. Verify a test that the local-fail/public-succeed case produces the "DNS failing while IP works" evidence.
+- [x] 11.4 Implement HTTP probes with response-time baselines, label every probe result with the WAN link in use, and provide default targets and editable settings. Verify tests for the slowdown evidence and for link labelling.
 
 ## 12. Discovery
 

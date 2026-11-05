@@ -30,6 +30,8 @@ DEFAULTS: dict[str, Any] = {
     "discovery_selected_subnets": [],
     "discovery_excluded_subnets": [],
     "low_disk_free_mb": 1024,
+    "starlink_dish_address": "192.168.100.1:9200",
+    "starlink_wan": None,
 }
 
 
