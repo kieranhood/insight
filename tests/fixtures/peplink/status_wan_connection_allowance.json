@@ -1,0 +1,33 @@
+{
+  "stat": "ok",
+  "response": {
+    "1": {
+      "enable": false
+    },
+    "2": {
+      "1": {
+        "enable": true,
+        "usage": 38912,
+        "limit": 102400,
+        "percent": 38,
+        "start": 1,
+        "unit": "MB"
+      },
+      "2": {
+        "enable": false
+      },
+      "order": [
+        1,
+        2
+      ]
+    },
+    "3": {
+      "enable": false
+    },
+    "order": [
+      1,
+      2,
+      3
+    ]
+  }
+}

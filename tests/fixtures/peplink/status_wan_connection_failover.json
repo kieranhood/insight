@@ -1,0 +1,175 @@
+{
+  "stat": "ok",
+  "response": {
+    "1": {
+      "name": "Starlink",
+      "enable": true,
+      "locked": false,
+      "managementOnly": false,
+      "ip": "100.79.112.45",
+      "statusLed": "red",
+      "message": "WAN failed DNS test",
+      "uptime": 0,
+      "type": "ethernet",
+      "virtualType": "ethernet",
+      "virtual": false,
+      "priority": 1,
+      "portId": 1,
+      "dns": [
+        "1.1.1.1",
+        "8.8.8.8"
+      ],
+      "mask": 10,
+      "gateway": "100.64.0.1",
+      "bandwidthAllowanceMonitor": {
+        "enable": false,
+        "hasSmtp": false
+      },
+      "method": "dhcp",
+      "routingMode": "NAT",
+      "mtu": 1500
+    },
+    "2": {
+      "name": "Cellular",
+      "enable": true,
+      "locked": false,
+      "managementOnly": false,
+      "ip": "10.142.37.9",
+      "statusLed": "green",
+      "message": "Connected to Vodafone ES",
+      "uptime": 360920,
+      "type": "cellular",
+      "virtualType": "cellular",
+      "virtual": false,
+      "priority": 2,
+      "cellular": {
+        "network": "LTE-A",
+        "mobileType": "LTE-A",
+        "modulePowerOn": true,
+        "sim": {
+          "1": {
+            "active": true,
+            "simCardDetected": true,
+            "imsi": "000000000000000",
+            "iccid": "00000000000000000000",
+            "autoApn": true,
+            "apn": "airtelwap.es",
+            "bandwidthAllowanceMonitor": {
+              "enable": true,
+              "hasSmtp": false
+            }
+          },
+          "2": {
+            "active": false,
+            "simCardDetected": false,
+            "autoApn": true,
+            "bandwidthAllowanceMonitor": {
+              "enable": false,
+              "hasSmtp": false
+            }
+          },
+          "order": [
+            1,
+            2
+          ]
+        },
+        "roamingStatus": {
+          "code": 1,
+          "message": "home"
+        },
+        "carrier": {
+          "name": "Vodafone ES",
+          "country": "Spain"
+        },
+        "carrierAggregation": true,
+        "signalLevel": 4,
+        "rat": [
+          {
+            "name": "LTE",
+            "band": [
+              {
+                "name": "LTE Band 3 (1800 MHz)",
+                "channel": 1501,
+                "pci": 312,
+                "channelWidth": "20 MHz",
+                "signal": {
+                  "rssi": -71,
+                  "sinr": 12.0,
+                  "rsrp": -98,
+                  "rsrq": -11.0
+                }
+              },
+              {
+                "name": "LTE Band 20 (800 MHz)",
+                "channel": 6300,
+                "pci": 312,
+                "channelWidth": "10 MHz",
+                "signal": {
+                  "rssi": -66,
+                  "rsrp": -95,
+                  "rsrq": -12.0
+                }
+              }
+            ]
+          }
+        ],
+        "imei": "000000000000000",
+        "meid": {
+          "hex": "",
+          "dec": ""
+        },
+        "esn": "",
+        "dataTechnology": "LTE-A",
+        "mcc": "214",
+        "mnc": "01",
+        "cellTower": {
+          "cellId": 19243017,
+          "cellPlmn": 21401,
+          "tac": 28102
+        },
+        "manufacturer": "Quectel",
+        "model": "RM520N-GL",
+        "firmware": "EXAMPLE-MODEM-FW"
+      },
+      "portId": 2,
+      "dns": [
+        "212.166.210.80",
+        "212.73.32.67"
+      ],
+      "mask": 30,
+      "gateway": "10.142.37.10",
+      "bandwidthAllowanceMonitor": {
+        "enable": true,
+        "hasSmtp": false
+      },
+      "method": "dhcp",
+      "routingMode": "NAT",
+      "mtu": 1428
+    },
+    "3": {
+      "name": "Wi-Fi WAN",
+      "enable": false,
+      "locked": false,
+      "managementOnly": false,
+      "statusLed": "gray",
+      "message": "Disabled",
+      "uptime": 0,
+      "type": "wifi",
+      "virtualType": "wifi",
+      "virtual": false,
+      "portId": 3,
+      "bandwidthAllowanceMonitor": {
+        "enable": false,
+        "hasSmtp": false
+      },
+      "method": "dhcp",
+      "routingMode": "NAT",
+      "mtu": 1500
+    },
+    "order": [
+      1,
+      2,
+      3
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "stat": "ok",
+  "response": {
+    "1": {
+      "version": "8.5.4 build 5808",
+      "bootable": true,
+      "inUse": true
+    },
+    "2": {
+      "version": "8.5.3 build 5700",
+      "bootable": true,
+      "inUse": false
+    },
+    "order": [
+      1,
+      2
+    ]
+  }
+}

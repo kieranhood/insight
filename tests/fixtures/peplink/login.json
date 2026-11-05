@@ -1,0 +1,9 @@
+{
+  "stat": "ok",
+  "response": {
+    "permission": {
+      "GET": 1,
+      "POST": 1
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "offset": 0,
+  "limit": 25,
+  "count": 3,
+  "totalCount": 3,
+  "data": [
+    {
+      "type": "WIRED",
+      "id": "f9edef13-b667-369f-9556-bc36978095af",
+      "name": "ha",
+      "connectedAt": "2026-09-24T17:40:52Z",
+      "ipAddress": "10.8.0.20",
+      "macAddress": "20:f8:3b:03:ec:9c",
+      "uplinkDeviceId": "72cf3194-b496-3ada-877c-6764792adc4a",
+      "access": {
+        "type": "DEFAULT"
+      }
+    },
+    {
+      "type": "WIRELESS",
+      "id": "e704bf9d-7359-3026-89fd-5d5e224e963d",
+      "name": "phone",
+      "macAddress": "72:af:09:a5:03:bc",
+      "access": {
+        "type": "GUEST"
+      }
+    },
+    {
+      "type": "VPN",
+      "id": "0d1e2f3a-0000-4000-8000-000000000003",
+      "name": "laptop-wireguard",
+      "connectedAt": "2026-09-24T18:00:00Z",
+      "ipAddress": "10.8.99.2",
+      "access": {
+        "type": "DEFAULT"
+      }
+    }
+  ]
+}

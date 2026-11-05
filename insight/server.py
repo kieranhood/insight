@@ -10,26 +10,59 @@ import urllib.request
 
 import uvicorn
 
+from insight.auth.tls import ensure_certificate
 from insight.runtime import Runtime
 from insight.settings import Settings
 from insight.web.app import create_app
+from insight.web.redirect import create_redirect_app
 
 log = logging.getLogger("insight")
 
 
-async def _run(settings: Settings) -> None:
-    runtime = Runtime(settings)
-    app = create_app(runtime)
-    config = uvicorn.Config(
-        app,
+def build_servers(runtime: Runtime) -> tuple[uvicorn.Server, uvicorn.Server]:
+    """The HTTPS server for Insight and the plain-HTTP server that redirects to it."""
+    settings = runtime.settings
+    cert_path, key_path = ensure_certificate(settings.data_dir)
+    https_config = uvicorn.Config(
+        create_app(runtime),
         host=settings.bind_host,
         port=settings.https_port,
+        ssl_certfile=str(cert_path),
+        ssl_keyfile=str(key_path),
         log_level="info",
         proxy_headers=False,
         server_header=False,
     )
-    server = uvicorn.Server(config)
-    await server.serve()
+    https = uvicorn.Server(https_config)
+
+    def reload_tls() -> None:
+        # New connections use the replacement certificate without a restart.
+        if https.config.ssl is not None:
+            https.config.ssl.load_cert_chain(str(cert_path), str(key_path))
+
+    runtime.reload_tls = reload_tls
+    http_config = uvicorn.Config(
+        create_redirect_app(settings.https_port),
+        host=settings.bind_host,
+        port=settings.http_port,
+        log_level="warning",
+        server_header=False,
+    )
+    return https, uvicorn.Server(http_config)
+
+
+async def run(runtime: Runtime) -> None:
+    https, http = build_servers(runtime)
+    await runtime.start_background()
+    try:
+        await asyncio.gather(https.serve(), http.serve())
+    finally:
+        await runtime.stop_background()
+        runtime.close()
+
+
+async def _run(settings: Settings) -> None:
+    await run(Runtime(settings))
 
 
 def serve() -> None:

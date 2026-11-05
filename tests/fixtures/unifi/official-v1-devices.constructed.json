@@ -1,0 +1,42 @@
+{
+  "offset": 0,
+  "limit": 25,
+  "count": 2,
+  "totalCount": 2,
+  "data": [
+    {
+      "id": "5f1c0a0e-3b7d-4c3e-9a51-0d8e2c6f1a01",
+      "macAddress": "d8:b3:70:1a:2b:01",
+      "ipAddress": "10.10.0.11",
+      "name": "SW-Bridge",
+      "model": "USW 24 PoE",
+      "state": "ONLINE",
+      "supported": true,
+      "firmwareVersion": "7.1.26",
+      "firmwareUpdatable": false,
+      "features": [
+        "switching"
+      ],
+      "interfaces": [
+        "ports"
+      ]
+    },
+    {
+      "id": "5f1c0a0e-3b7d-4c3e-9a51-0d8e2c6f1a02",
+      "macAddress": "d8:b3:70:1a:2b:02",
+      "ipAddress": "10.10.0.12",
+      "name": "SW-Crew",
+      "model": "USW Lite 8 PoE",
+      "state": "OFFLINE",
+      "supported": true,
+      "firmwareVersion": "7.1.26",
+      "firmwareUpdatable": false,
+      "features": [
+        "switching"
+      ],
+      "interfaces": [
+        "ports"
+      ]
+    }
+  ]
+}

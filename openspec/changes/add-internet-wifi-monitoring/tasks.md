@@ -26,12 +26,12 @@
 
 ## 4. Access control
 
-- [ ] 4.1 Implement accounts with crew and engineer roles, Argon2id password hashing, and a first-run flow that requires an engineer account to be created. Verify tests: no default credentials exist, the first-run page blocks every other page, and stored hashes are not plain text.
-- [ ] 4.2 Implement sessions: secure cookies, CSRF tokens, idle timeouts and sign-out. Verify tests that an expired session redirects to sign-in and that a form post without a CSRF token is rejected.
-- [ ] 4.3 Enforce the engineer role on the server for every engineer and configuration route. Verify a test that requests every engineer route as a crew user and expects refusal.
-- [ ] 4.4 Implement sign-in throttling: five failures in ten minutes locks the account for a period. Verify a test that the sixth attempt is refused even with the correct password.
-- [ ] 4.5 Implement device-credential encryption at rest. The key is generated on first run and stored in `/data/secret.key` with mode 0600. Credentials are masked in the UI and never returned by any API. Verify tests that the database contains no plain-text credential and that the API response masks it.
-- [ ] 4.6 Implement HTTPS with a self-signed certificate generated on first run, an HTTP-to-HTTPS redirect, and upload of a replacement certificate. Verify a test that plain HTTP redirects, and manually check that an uploaded certificate is served.
+- [x] 4.1 Implement accounts with crew and engineer roles, Argon2id password hashing, and a first-run flow that requires an engineer account to be created. Verify tests: no default credentials exist, the first-run page blocks every other page, and stored hashes are not plain text.
+- [x] 4.2 Implement sessions: secure cookies, CSRF tokens, idle timeouts and sign-out. Verify tests that an expired session redirects to sign-in and that a form post without a CSRF token is rejected.
+- [x] 4.3 Enforce the engineer role on the server for every engineer and configuration route. Verify a test that requests every engineer route as a crew user and expects refusal.
+- [x] 4.4 Implement sign-in throttling: five failures in ten minutes locks the account for a period. Verify a test that the sixth attempt is refused even with the correct password.
+- [x] 4.5 Implement device-credential encryption at rest. The key is generated on first run and stored in `/data/secret.key` with mode 0600. Credentials are masked in the UI and never returned by any API. Verify tests that the database contains no plain-text credential and that the API response masks it.
+- [x] 4.6 Implement HTTPS with a self-signed certificate generated on first run, an HTTP-to-HTTPS redirect, and upload of a replacement certificate. Verify a test that plain HTTP redirects, and manually check that an uploaded certificate is served.
 
 ## 5. Collection framework and simulator
 

@@ -1,0 +1,42 @@
+{
+  "offset": 0,
+  "limit": 25,
+  "count": 3,
+  "totalCount": 3,
+  "data": [
+    {
+      "type": "WIRED",
+      "id": "9a0e5b1c-7f2d-4e8a-b3c6-1d2e3f4a5b01",
+      "name": "RuckusAP-Saloon",
+      "connectedAt": "2026-10-16T08:02:11Z",
+      "ipAddress": "10.10.0.51",
+      "macAddress": "00:24:82:3c:4d:5e",
+      "uplinkDeviceId": "5f1c0a0e-3b7d-4c3e-9a51-0d8e2c6f1a01",
+      "access": {
+        "type": "DEFAULT"
+      }
+    },
+    {
+      "type": "WIRED",
+      "id": "9a0e5b1c-7f2d-4e8a-b3c6-1d2e3f4a5b02",
+      "name": "nvr",
+      "connectedAt": "2026-10-16T08:01:40Z",
+      "ipAddress": "10.10.0.60",
+      "macAddress": "00:11:32:aa:bb:01",
+      "uplinkDeviceId": "5f1c0a0e-3b7d-4c3e-9a51-0d8e2c6f1a01",
+      "access": {
+        "type": "DEFAULT"
+      }
+    },
+    {
+      "type": "WIRED",
+      "id": "9a0e5b1c-7f2d-4e8a-b3c6-1d2e3f4a5b03",
+      "name": "3c:22:fb:12:34:56",
+      "macAddress": "3c:22:fb:12:34:56",
+      "uplinkDeviceId": "5f1c0a0e-3b7d-4c3e-9a51-0d8e2c6f1a02",
+      "access": {
+        "type": "DEFAULT"
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "stat": "ok",
+  "response": {
+    "1": {
+      "name": "Starlink",
+      "asLan": false,
+      "enable": true,
+      "active": true,
+      "healthcheck": {
+        "method": "nslookup",
+        "timeout": 5,
+        "interval": 5,
+        "retry": 3,
+        "recovery": 3,
+        "enable": true,
+        "nslookup": {
+          "includePublic": true
+        }
+      }
+    },
+    "2": {
+      "name": "Cellular",
+      "asLan": false,
+      "enable": true,
+      "active": true,
+      "healthcheck": {
+        "method": "smartcheck",
+        "timeout": 5,
+        "interval": 5,
+        "retry": 3,
+        "recovery": 3,
+        "enable": true
+      }
+    },
+    "3": {
+      "name": "Wi-Fi WAN",
+      "asLan": false,
+      "enable": false,
+      "active": false,
+      "healthcheck": {
+        "enable": false
+      }
+    },
+    "order": [
+      1,
+      2,
+      3
+    ]
+  }
+}

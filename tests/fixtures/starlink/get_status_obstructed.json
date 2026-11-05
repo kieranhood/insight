@@ -1,0 +1,59 @@
+{
+  "apiVersion": "43",
+  "dishGetStatus": {
+    "deviceInfo": {
+      "id": "ut00000000-00000000-00000000",
+      "hardwareVersion": "EXAMPLE_HW_REV",
+      "softwareVersion": "2026.10.09.mr88722.2",
+      "countryCode": "XX",
+      "bootcount": 42
+    },
+    "deviceState": {
+      "uptimeS": "433800"
+    },
+    "alerts": {},
+    "outage": {
+      "cause": "OBSTRUCTED",
+      "startTimestampNs": "1793872791000000000",
+      "durationNs": "9000000000"
+    },
+    "obstructionStats": {
+      "currentlyObstructed": true,
+      "fractionObstructed": 0.087,
+      "timeObstructed": 0.061,
+      "validS": 44800,
+      "patchesValid": 8120,
+      "avgProlongedObstructionDurationS": 6.3,
+      "avgProlongedObstructionIntervalS": 182.5,
+      "avgProlongedObstructionValid": true
+    },
+    "gpsStats": {
+      "gpsValid": true,
+      "gpsSats": 13,
+      "pntFilterConvergenceState": "FILTER_CONVERGED"
+    },
+    "secondsToFirstNonemptySlot": 1.5,
+    "popPingDropRate": 1,
+    "downlinkThroughputBps": 1820.4,
+    "uplinkThroughputBps": 950.1,
+    "boresightAzimuthDeg": 0.5,
+    "boresightElevationDeg": 89.5,
+    "ethSpeedMbps": 1000,
+    "mobilityClass": "MOBILE",
+    "readyStates": {
+      "cady": true,
+      "scp": true,
+      "l1l2": true,
+      "xphy": true,
+      "aap": true,
+      "rf": true
+    },
+    "classOfService": "BUSINESS",
+    "softwareUpdateState": "IDLE",
+    "softwareUpdateStats": {
+      "softwareUpdateState": "IDLE"
+    },
+    "hasActuators": "HAS_ACTUATORS_NO",
+    "disablementCode": "OKAY"
+  }
+}

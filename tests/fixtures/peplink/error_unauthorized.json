@@ -1,0 +1,5 @@
+{
+  "stat": "fail",
+  "code": 401,
+  "message": "Unauthorized"
+}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Certificate{% endblock %}
+{% block content %}
+<h1>HTTPS certificate</h1>
+{% if error %}<p class="alert alert-critical" role="alert">{{ error }}</p>{% endif %}
+{% if message %}<p class="alert alert-healthy" role="status">{{ message }}</p>{% endif %}
+<section class="card">
+  {% if cert %}<dl class="facts"><dt>Subject</dt><dd>{{ cert.subject }}</dd><dt>Expires</dt><dd>{{ cert.expires }}</dd><dt>Self-signed</dt><dd>{{ cert.self_signed }}</dd></dl>{% endif %}
+  <p>Insight creates a self-signed certificate on first run. Upload a certificate and its private key (PEM) to replace it.</p>
+  <form method="post" action="/engineer/settings/certificate" enctype="multipart/form-data" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Certificate (PEM) <input type="file" name="certificate" accept=".pem,.crt" required></label>
+    <label>Private key (PEM) <input type="file" name="private_key" accept=".pem,.key" required></label>
+    <button class="btn btn-primary" type="submit">Install certificate</button>
+  </form>
+</section>
+{% endblock %}

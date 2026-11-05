@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "rc": "ok"
+  },
+  "data": [
+    {
+      "_id": "65a0c1f2e4b0a1b2c3d4e501",
+      "mac": "d8:b3:70:1a:2b:01",
+      "name": "SW-Bridge",
+      "model": "USL24P",
+      "type": "usw",
+      "state": 1,
+      "lldp_table": [
+        {
+          "chassis_id": "00:24:82:3c:4d:5e",
+          "chassis_id_subtype": "mac",
+          "is_wired": true,
+          "local_port_idx": 12,
+          "local_port_name": "Port 12",
+          "port_id": "eth0"
+        },
+        {
+          "chassis_id": "d8:b3:70:1a:2b:02",
+          "chassis_id_subtype": "mac",
+          "is_wired": true,
+          "local_port_idx": 24,
+          "local_port_name": "Port 24",
+          "port_id": "Port 8"
+        }
+      ]
+    }
+  ]
+}

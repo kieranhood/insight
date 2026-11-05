@@ -1,0 +1,16 @@
+{
+  "stat": "ok",
+  "response": {
+    "log": [
+      "Nov  5 10:58:12 WAN: Starlink (Priority 1) connected (100.79.112.45)",
+      "Nov  5 10:58:12 WAN: Cellular (Priority 2) standby (10.142.37.9) in SIM A",
+      "Nov  5 10:41:47 WAN: Cellular (Priority 2) connected to Vodafone ES (10.142.37.9) in SIM A",
+      "Nov  5 10:41:32 WAN: Starlink (Priority 1) disconnected (WAN failed DNS test)",
+      "Nov  5 09:12:03 System: Time synchronization successful (GPS)",
+      "Nov  1 06:27:40 WAN: Cellular (Priority 2) standby (10.142.37.9) in SIM A",
+      "Nov  1 06:27:31 WAN: Starlink (Priority 1) connected (100.79.112.45)",
+      "Nov  1 06:26:58 Port: Port 1 status changed (link up, speed 1 Gbps Full Duplex)",
+      "Nov  1 06:26:51 System: Started up (8.5.4 build 5808)"
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "offset": 0,
+  "limit": 25,
+  "count": 3,
+  "totalCount": 3,
+  "data": [
+    {
+      "id": "90edff53-2df1-3c0a-be00-516fb6e88bdc",
+      "macAddress": "70:a7:41:65:c0:ce",
+      "ipAddress": "10.8.0.188",
+      "name": "USW Enterprise 8 PoE",
+      "model": "USW Enterprise 8 PoE",
+      "state": "ONLINE",
+      "supported": true,
+      "firmwareVersion": "7.5.15",
+      "firmwareUpdatable": false,
+      "features": [
+        "switching"
+      ],
+      "interfaces": [
+        "ports"
+      ]
+    },
+    {
+      "id": "74c2ac6a-e9ae-38b0-8ef9-bcc96eb336fa",
+      "macAddress": "78:45:58:e5:1a:d9",
+      "ipAddress": "10.8.0.254",
+      "name": "AP - Main house",
+      "model": "U6 Pro",
+      "state": "ONLINE",
+      "supported": true,
+      "firmwareVersion": "6.8.2",
+      "firmwareUpdatable": false,
+      "features": [
+        "accessPoint"
+      ],
+      "interfaces": [
+        "radios"
+      ]
+    },
+    {
+      "id": "bdd9bc11-2f6e-3f37-8344-e6aa15e3fae7",
+      "macAddress": "8c:30:66:d2:08:94",
+      "name": "Modem - Backup",
+      "model": "U5G Max Outdoor",
+      "state": "ONLINE",
+      "supported": true
+    }
+  ]
+}

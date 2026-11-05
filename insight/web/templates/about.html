@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+{% block main_class %}narrow{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>About Insight</h1>
+  <p>Insight by 50N Systems monitors this yacht's internet and Wi-Fi systems and explains problems in plain English.</p>
+  <h2>Licence</h2>
+  <p class="licence-notice">{{ branding.LICENCE_NOTICE }}</p>
+  <p>{{ branding.COPYRIGHT }}</p>
+  <p class="muted">Version {{ version }}</p>
+</section>
+{% endblock %}

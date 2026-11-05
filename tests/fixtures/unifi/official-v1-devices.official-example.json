@@ -1,0 +1,46 @@
+{
+  "count": 10,
+  "data": [
+    {
+      "features": [
+        "gateway",
+        "switching"
+      ],
+      "firmwareUpdatable": false,
+      "id": "e3c14308-488c-23c1-b123-4167847a389f",
+      "interfaces": [
+        "ports",
+        "radios"
+      ],
+      "ipAddress": "192.168.1.55",
+      "macAddress": "94:2a:6f:26:c6:ca",
+      "model": "UHDIW",
+      "name": "IW HD",
+      "state": "ONLINE",
+      "supported": false,
+      "firmwareVersion": "6.6.55"
+    },
+    {
+      "features": [
+        "gateway",
+        "switching"
+      ],
+      "firmwareUpdatable": false,
+      "id": "8affd62a-1925-21d3-3ad1-d69be89d8f6c",
+      "interfaces": [
+        "radios",
+        "ports"
+      ],
+      "ipAddress": "192.168.1.55",
+      "macAddress": "94:2a:6f:26:c6:ca",
+      "model": "UHDIW",
+      "name": "IW HD",
+      "state": "PENDING_ADOPTION",
+      "supported": true,
+      "firmwareVersion": "6.6.55"
+    }
+  ],
+  "limit": 25,
+  "offset": 0,
+  "totalCount": 1000
+}

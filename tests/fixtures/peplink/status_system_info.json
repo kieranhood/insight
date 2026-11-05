@@ -1,0 +1,75 @@
+{
+  "stat": "ok",
+  "response": {
+    "device": {
+      "serialNumber": "1111-2222-3333",
+      "name": "MY-EXAMPLE-ROUTER",
+      "model": "Pepwave MAX BR1 Pro 5G",
+      "descriptionSupport": "",
+      "productCode": "EXAMPLE-PRODUCT-CODE",
+      "hardwareRevision": "1",
+      "firmwareVersion": "8.5.4 build 5808",
+      "host": "my-example-router",
+      "pepvpnVersion": "9.2.4",
+      "modemSupport": {
+        "version": "1026",
+        "url": "http://www.pepwave.com/modem/1026/EXAMPLE"
+      },
+      "company": "Pepwave",
+      "legal": true
+    },
+    "configActivation": {
+      "activating": false
+    },
+    "cpuLoad": {
+      "string": "7.41%",
+      "percentage": 7.41
+    },
+    "uptime": {
+      "string": "4 day 4 hour 33 minute",
+      "second": 361989
+    },
+    "systemTime": {
+      "string": "Thu Nov 05 11:00:00 CET 2026",
+      "timestamp": 1793872800,
+      "timezone": "Europe/Madrid"
+    },
+    "remoteAssistance": {
+      "enable": false
+    },
+    "macInfo": [
+      {
+        "interfaceType": "lan",
+        "name": "LAN",
+        "mac": "a8:c0:ea:12:34:50"
+      },
+      {
+        "interfaceType": "wan",
+        "name": "WAN",
+        "mac": "a8:c0:ea:12:34:51",
+        "connId": 1
+      },
+      {
+        "interfaceType": "wan",
+        "name": "Cellular",
+        "mac": "a8:c0:ea:12:34:52",
+        "connId": 2
+      },
+      {
+        "interfaceType": "wan",
+        "name": "Wi-Fi WAN",
+        "mac": "a8:c0:ea:12:34:53",
+        "connId": 3
+      }
+    ],
+    "subscription": {
+      "mode": "",
+      "carePlan": {
+        "name": "PrimeCare",
+        "active": true,
+        "timezone": "Europe/Madrid",
+        "expiry": 1856649600
+      }
+    }
+  }
+}

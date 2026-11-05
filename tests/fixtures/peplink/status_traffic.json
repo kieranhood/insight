@@ -1,0 +1,123 @@
+{
+  "stat": "ok",
+  "response": {
+    "lifetime": {
+      "timestamp": 1735689600,
+      "datetime": "Thu Jan 01 01:00:00 CET 2025",
+      "unit": "MB",
+      "all": {
+        "overall": {
+          "download": 4182211,
+          "upload": 611930
+        }
+      },
+      "order": [
+        "all"
+      ]
+    },
+    "bandwidth": {
+      "timestamp": 1793872800,
+      "unit": "kbps",
+      "1": {
+        "name": "Starlink",
+        "portType": "ethernet",
+        "virtual": false,
+        "overall": {
+          "download": 4810,
+          "upload": 622
+        },
+        "details": {
+          "http": {
+            "download": 112,
+            "upload": 9
+          },
+          "https": {
+            "download": 4391,
+            "upload": 571
+          },
+          "imap": {
+            "download": 0,
+            "upload": 0
+          },
+          "pop3": {
+            "download": 0,
+            "upload": 0
+          },
+          "smtp": {
+            "download": 0,
+            "upload": 0
+          },
+          "others": {
+            "download": 307,
+            "upload": 42
+          }
+        }
+      },
+      "2": {
+        "name": "Cellular",
+        "portType": "gobi",
+        "virtual": false,
+        "overall": {
+          "download": 1,
+          "upload": 1
+        },
+        "details": {
+          "http": {
+            "download": 0,
+            "upload": 0
+          },
+          "https": {
+            "download": 0,
+            "upload": 0
+          },
+          "imap": {
+            "download": 0,
+            "upload": 0
+          },
+          "pop3": {
+            "download": 0,
+            "upload": 0
+          },
+          "smtp": {
+            "download": 0,
+            "upload": 0
+          },
+          "others": {
+            "download": 0,
+            "upload": 0
+          }
+        }
+      },
+      "order": [
+        1,
+        2
+      ]
+    },
+    "traffic": {
+      "timestamp": 1793872800,
+      "unit": "MB",
+      "1": {
+        "name": "Starlink",
+        "portType": "ethernet",
+        "virtual": false,
+        "overall": {
+          "download": 61822,
+          "upload": 7410
+        }
+      },
+      "2": {
+        "name": "Cellular",
+        "portType": "gobi",
+        "virtual": false,
+        "overall": {
+          "download": 214,
+          "upload": 37
+        }
+      },
+      "order": [
+        1,
+        2
+      ]
+    }
+  }
+}

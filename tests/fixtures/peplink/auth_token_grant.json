@@ -1,0 +1,9 @@
+{
+  "stat": "ok",
+  "response": {
+    "accessToken": "43c65216eb16d779092fc40b184a1794",
+    "authorizationType": 3,
+    "scope": "api",
+    "expiresIn": 172800
+  }
+}

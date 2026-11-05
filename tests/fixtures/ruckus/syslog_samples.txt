@@ -1,0 +1,9 @@
+Apr 15 10:24:13 Ruckus1 syslog: eventd_to_syslog():AP[Ruckus2@2c:c5:d3:00:9a:70] joins with uptime [110] s and last disconnected reason [AP Restart : target fail detect]
+Apr 15 10:24:16 Ruckus1 syslog: eventd_to_syslog():AP[Ruckus3@d4:68:4d:22:35:00] joins with uptime [2736005] s and last disconnected reason [Heartbeat Loss]
+Apr 15 10:24:18 Ruckus1 syslog: eventd_to_syslog():AP[Ruckus2@2c:c5:d3:00:9a:70] warm boot successfully,last reboot reason [target fail detect].
+Apr 15 10:25:21 Ruckus1 syslog: eventd_to_syslog():Radio [5G] of AP[Ruckus2@2c:c5:d3:00:9a:70] is ON
+Apr 15 10:24:20 Ruckus1 rfmd[461]: Netlink - RTM_DELLINK
+Nov  5 09:58:02 Unleashed-Yacht syslog: eventd_to_syslog():AP[Bridge-Deck@2c:c5:d3:aa:bb:08] heartbeats lost
+Nov  5 09:59:12 Unleashed-Yacht syslog: eventd_to_syslog():Lost contact with AP[Bridge-Deck@2c:c5:d3:aa:bb:08]
+Nov  5 10:03:40 Unleashed-Yacht syslog: eventd_to_syslog():AP[Bridge-Deck@2c:c5:d3:aa:bb:08] joins with uptime [74] s and last disconnected reason [AP Restart : power cycle]
+Nov  5 10:03:44 Unleashed-Yacht syslog: eventd_to_syslog():AP[Bridge-Deck@2c:c5:d3:aa:bb:08] cold boot successfully,last reboot reason [power cycle].

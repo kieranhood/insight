@@ -1,0 +1,50 @@
+{
+  "apiVersion": "43",
+  "dishGetStatus": {
+    "deviceInfo": {
+      "id": "ut00000000-00000000-00000000",
+      "hardwareVersion": "EXAMPLE_HW_REV",
+      "softwareVersion": "2026.10.09.mr88722.2",
+      "countryCode": "XX",
+      "bootcount": 42
+    },
+    "deviceState": {
+      "uptimeS": "432000"
+    },
+    "alerts": {},
+    "obstructionStats": {
+      "fractionObstructed": 0.0021,
+      "validS": 43000,
+      "patchesValid": 8000,
+      "avgProlongedObstructionIntervalS": "NaN"
+    },
+    "gpsStats": {
+      "gpsValid": true,
+      "gpsSats": 14,
+      "pntFilterConvergenceState": "FILTER_CONVERGED"
+    },
+    "downlinkThroughputBps": 2485123.5,
+    "uplinkThroughputBps": 412345.2,
+    "popPingLatencyMs": 31.4,
+    "boresightAzimuthDeg": 0.5,
+    "boresightElevationDeg": 89.5,
+    "ethSpeedMbps": 1000,
+    "mobilityClass": "MOBILE",
+    "isSnrAboveNoiseFloor": true,
+    "readyStates": {
+      "cady": true,
+      "scp": true,
+      "l1l2": true,
+      "xphy": true,
+      "aap": true,
+      "rf": true
+    },
+    "classOfService": "BUSINESS",
+    "softwareUpdateState": "IDLE",
+    "softwareUpdateStats": {
+      "softwareUpdateState": "IDLE"
+    },
+    "hasActuators": "HAS_ACTUATORS_NO",
+    "disablementCode": "OKAY"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "stat": "ok",
+  "response": {
+    "list": [
+      {
+        "ip": "192.168.50.10",
+        "connectionType": "ethernet",
+        "lease": {
+          "expiresIn": 74211,
+          "type": "dhcp"
+        },
+        "name": "BRIDGE-NAV-PC",
+        "mac": "F8:BC:12:4A:9E:21",
+        "active": true,
+        "speed": {
+          "download": 312,
+          "upload": 41,
+          "unit": "kbps"
+        }
+      },
+      {
+        "ip": "192.168.50.20",
+        "connectionType": "ethernet",
+        "lease": {
+          "expiresIn": 80102,
+          "type": "dhcp"
+        },
+        "name": "UniFi-CloudKey",
+        "mac": "74:83:C2:1D:55:0A",
+        "active": true,
+        "speed": {
+          "download": 18,
+          "upload": 22,
+          "unit": "kbps"
+        }
+      },
+      {
+        "ip": "192.168.20.31",
+        "connectionType": "ethernet",
+        "lease": {
+          "expiresIn": 51877,
+          "type": "dhcp"
+        },
+        "name": "Sonos-Salon",
+        "mac": "48:A6:B8:77:21:C4",
+        "vlanId": 20,
+        "active": true,
+        "speed": {
+          "download": 960,
+          "upload": 12,
+          "unit": "kbps"
+        }
+      },
+      {
+        "ip": "192.168.30.112",
+        "connectionType": "wireless",
+        "lease": {
+          "expiresIn": 6512,
+          "type": "dhcp"
+        },
+        "name": "Crew-iPhone",
+        "mac": "F0:18:98:3B:6C:7D",
+        "bssid": "A8:C0:EA:12:34:57",
+        "essid": "CREW",
+        "vlanId": 30,
+        "active": true,
+        "signal": {
+          "strength": -61,
+          "level": 4
+        },
+        "speed": {
+          "download": 1450,
+          "upload": 230,
+          "unit": "kbps"
+        }
+      },
+      {
+        "ip": "192.168.50.45",
+        "name": "",
+        "mac": "02:5E:11:9C:00:4B",
+        "active": false
+      }
+    ]
+  }
+}
