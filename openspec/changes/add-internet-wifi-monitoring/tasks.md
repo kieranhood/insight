@@ -10,9 +10,9 @@
 
 ## 2. Project scaffold and container
 
-- [ ] 2.1 Create the Python 3.12 project: `pyproject.toml`, the `insight/` package layout, linting (ruff), type checking (mypy) and pytest. Verify `pytest` and `ruff check` run cleanly on the empty project.
-- [ ] 2.2 Add a FastAPI app with a `/healthz` endpoint that reports the version and the time of the last collection cycle, with no yacht data. Verify with a test that `/healthz` returns the version and no inventory or finding data.
-- [ ] 2.3 Write a Dockerfile (`python:3.12-slim`, non-root user, `HEALTHCHECK` calling `/healthz`) and `compose.yaml`: host networking, `restart: unless-stopped`, the `insight-data:/data` volume, and the `NET_RAW` and `NET_BIND_SERVICE` capabilities. Verify `docker compose up` starts the container and it reports healthy.
+- [x] 2.1 Create the Python 3.12 project: `pyproject.toml`, the `insight/` package layout, linting (ruff), type checking (mypy) and pytest. Verify `pytest` and `ruff check` run cleanly on the empty project.
+- [x] 2.2 Add a FastAPI app with a `/healthz` endpoint that reports the version and the time of the last collection cycle, with no yacht data. Verify with a test that `/healthz` returns the version and no inventory or finding data.
+- [x] 2.3 Write a Dockerfile (`python:3.12-slim`, non-root user, `HEALTHCHECK` calling `/healthz`) and `compose.yaml`: host networking, `restart: unless-stopped`, the `insight-data:/data` volume, and the `NET_RAW` and `NET_BIND_SERVICE` capabilities. Verify `docker compose up` starts the container and it reports healthy.
 - [ ] 2.4 Add a CI workflow that runs lint, type checks and tests, then builds the image. Verify the workflow passes on the branch.
 
 ## 3. Storage and common model

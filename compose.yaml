@@ -1,0 +1,20 @@
+# Insight by 50N Systems: on-board deployment.
+# Start with:  docker compose up -d
+services:
+  insight:
+    image: ${INSIGHT_IMAGE:-ghcr.io/kieranhood/insight}:${INSIGHT_TAG:-latest}
+    build: .
+    container_name: insight
+    restart: unless-stopped
+    network_mode: host
+    cap_drop: [ALL]
+    cap_add: [NET_RAW, NET_BIND_SERVICE]
+    volumes:
+      - insight-data:/data
+    environment:
+      INSIGHT_HTTPS_PORT: ${INSIGHT_HTTPS_PORT:-443}
+      INSIGHT_HTTP_PORT: ${INSIGHT_HTTP_PORT:-80}
+      INSIGHT_SYSLOG_PORT: ${INSIGHT_SYSLOG_PORT:-514}
+
+volumes:
+  insight-data:
