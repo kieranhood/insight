@@ -93,7 +93,7 @@
 - [x] 13.1 Implement metric history queries by series and time range, returning only the requested range. Verify a test that a 24-hour query returns only that range.
 - [x] 13.2 Implement the event timeline with filters for time, system, device, service and event type. Verify filter tests for each dimension.
 - [x] 13.3 Implement the nightly job that builds daily rollups, enforces the 30-day detail and 365-day summary retention (both configurable) and runs incremental vacuuming. Verify a test that ages out data and keeps its rollups.
-- [ ] 13.4 Implement free-space monitoring with a low-disk finding and oldest-first pruning. Verify a test that simulates low space and checks that pruning happens and the finding is raised.
+- [x] 13.4 Implement free-space monitoring with a low-disk finding and oldest-first pruning. Verify a test that simulates low space and checks that pruning happens and the finding is raised.
 - [x] 13.5 Represent gaps in history, both while Insight was stopped and during monitoring failures. Verify a test that a two-hour stop appears as a gap in a chart query.
 
 ## 14. Diagnostic engine
@@ -105,14 +105,14 @@
 
 ## 15. Initial rule catalogue
 
-- [ ] 15.1 Implement the internet rules: internet unavailable, primary link degraded, failover to backup (with a data-cost note), and all paths degraded. Verify simulator scenario tests for each.
-- [ ] 15.2 Implement the DNS failure rule. Verify the simulator's DNS scenario produces the finding with the correct confidence and evidence.
-- [ ] 15.3 Implement the Starlink rules: obstructed and dish alert, which need the optional source, and the degraded-with-unknown-cause fallback. Verify tests with the dish source both available and unavailable.
-- [ ] 15.4 Implement the weak-cellular-signal-on-active-link rule. Verify a scenario test.
-- [ ] 15.5 Implement the Wi-Fi infrastructure rules: AP offline, AP lost PoE (confirmed, cross-vendor), and switch offline or uplink down, grouping the affected APs. Verify the PoE-loss scenario produces one confirmed finding naming the location for crew and the switch and port for engineers, and that a switch outage produces one grouped finding.
-- [ ] 15.6 Implement the Wi-Fi congestion rule, which needs optional Ruckus data. Verify it fires on high channel utilisation and does not fire when the optional source is unavailable.
-- [ ] 15.7 Implement the monitoring-source-unavailable rule. Verify the controller outage scenario produces a monitoring-failure finding and no switch-offline findings.
-- [ ] 15.8 Document each rule (purpose, inputs, thresholds, confidence logic, wording) in `docs/rules.md`. Verify the doc covers every rule in the catalogue.
+- [x] 15.1 Implement the internet rules: internet unavailable, primary link degraded, failover to backup (with a data-cost note), and all paths degraded. Verify simulator scenario tests for each.
+- [x] 15.2 Implement the DNS failure rule. Verify the simulator's DNS scenario produces the finding with the correct confidence and evidence.
+- [x] 15.3 Implement the Starlink rules: obstructed and dish alert, which need the optional source, and the degraded-with-unknown-cause fallback. Verify tests with the dish source both available and unavailable.
+- [x] 15.4 Implement the weak-cellular-signal-on-active-link rule. Verify a scenario test.
+- [x] 15.5 Implement the Wi-Fi infrastructure rules: AP offline, AP lost PoE (confirmed, cross-vendor), and switch offline or uplink down, grouping the affected APs. Verify the PoE-loss scenario produces one confirmed finding naming the location for crew and the switch and port for engineers, and that a switch outage produces one grouped finding.
+- [x] 15.6 Implement the Wi-Fi congestion rule, which needs optional Ruckus data. Verify it fires on high channel utilisation and does not fire when the optional source is unavailable.
+- [x] 15.7 Implement the monitoring-source-unavailable rule. Verify the controller outage scenario produces a monitoring-failure finding and no switch-offline findings.
+- [x] 15.8 Document each rule (purpose, inputs, thresholds, confidence logic, wording) in `docs/rules.md`. Verify the doc covers every rule in the catalogue.
 
 ## 16. Health status
 

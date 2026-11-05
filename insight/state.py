@@ -234,6 +234,13 @@ class StateStore:
     def topology_ports(self) -> list[Port]:
         """Current ports plus remembered attachments for ports no longer reported."""
         current = {(p.device_key, p.port_id): p for p in self.ports()}
+        for key, port in list(current.items()):
+            known = self.attachments.get(key)
+            if not port.neighbour_mac and known is not None:
+                # The port no longer reports its neighbour (e.g. link down): keep the cabling.
+                current[key] = dataclasses.replace(
+                    port, neighbour_mac=known.neighbour_mac, neighbour_name=known.neighbour_name
+                )
         remembered = [p for key, p in self.attachments.items() if key not in current]
         return [*current.values(), *remembered]
 
