@@ -17,12 +17,12 @@
 
 ## 3. Storage and common model
 
-- [ ] 3.1 Define the common model types (Source, Device, Port, WanLink, WifiNetwork, AccessPoint, Client, Metric, Event), each with `observed_at` and a reliability class. Verify unit tests construct each type and reject missing timestamps.
-- [ ] 3.2 Implement the SQLite schema (WAL mode) with versioned, forward-only migrations applied at startup, plus an automatic backup taken before any migration. Verify a test that migrating an empty database succeeds and creates a backup file.
-- [ ] 3.3 Implement the single-writer persistence task with batched inserts for metrics and events. Verify a test that inserts 10,000 metrics in a batch and reads them back.
-- [ ] 3.4 Implement the current-state store. It holds the latest snapshot per source with its freshness, compares snapshots to emit events, and merges devices across sources by MAC address, then serial number. Verify unit tests covering port-down and failover event emission, and the merge of a device seen by two sources.
-- [ ] 3.5 Implement the topology graph, built from uplink and neighbour data with manual overrides. Verify a test that resolves "APs downstream of switch X" from a fixture.
-- [ ] 3.6 Store times in UTC and add a ship's-time zone setting used for display. Verify a test that formats a stored timestamp in two different ship's-time zones.
+- [x] 3.1 Define the common model types (Source, Device, Port, WanLink, WifiNetwork, AccessPoint, Client, Metric, Event), each with `observed_at` and a reliability class. Verify unit tests construct each type and reject missing timestamps.
+- [x] 3.2 Implement the SQLite schema (WAL mode) with versioned, forward-only migrations applied at startup, plus an automatic backup taken before any migration. Verify a test that migrating an empty database succeeds and creates a backup file.
+- [x] 3.3 Implement the single-writer persistence task with batched inserts for metrics and events. Verify a test that inserts 10,000 metrics in a batch and reads them back.
+- [x] 3.4 Implement the current-state store. It holds the latest snapshot per source with its freshness, compares snapshots to emit events, and merges devices across sources by MAC address, then serial number. Verify unit tests covering port-down and failover event emission, and the merge of a device seen by two sources.
+- [x] 3.5 Implement the topology graph, built from uplink and neighbour data with manual overrides. Verify a test that resolves "APs downstream of switch X" from a fixture.
+- [x] 3.6 Store times in UTC and add a ship's-time zone setting used for display. Verify a test that formats a stored timestamp in two different ship's-time zones.
 
 ## 4. Access control
 
