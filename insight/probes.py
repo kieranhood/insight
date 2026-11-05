@@ -19,14 +19,18 @@ from typing import Any
 
 import httpx
 
-from insight.collection.adapter import Adapter, AdapterInfo
+from insight.collection.adapter import Adapter, AdapterInfo, CollectionError
 from insight.config_store import ConfigStore
 from insight.inventory import Inventory
 from insight.model import Metric, Reliability, Snapshot
 from insight.sources import SourceConfig
-from insight.state import StateStore
+from insight.state import FailureKind, StateStore
 
 PROBES_SOURCE_ID = "insight-probes"
+
+
+class IcmpNotPermitted(CollectionError):
+    kind = FailureKind.UNREACHABLE
 
 
 @dataclass(frozen=True)

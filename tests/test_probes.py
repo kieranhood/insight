@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
+
 from insight.model import Reliability
-from insight.probes import PingResult, ProbesAdapter, icmp_ping, probes_source
+from insight.probes import IcmpNotPermitted, PingResult, ProbesAdapter, icmp_ping, probes_source
 from insight.runtime import Runtime
 from insight.timeutil import utcnow
 from tests.factories import snap, wan
@@ -175,5 +177,8 @@ async def test_probes_always_configured(runtime: Runtime) -> None:
 
 
 async def test_real_icmp_to_loopback() -> None:
-    results = await icmp_ping(["127.0.0.1"], 1)
+    try:
+        results = await icmp_ping(["127.0.0.1"], 1)
+    except IcmpNotPermitted:
+        pytest.skip("this OS does not allow ICMP sockets for the test user")
     assert results["127.0.0.1"].ok
