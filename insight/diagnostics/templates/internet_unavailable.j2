@@ -1,0 +1,28 @@
+{% block title %}Internet unavailable{% endblock %}
+{% block crew %}
+{% if confirmed %}
+There is no internet connection on board at the moment. All of the yacht's connections ({{ links | join_and }}) are down. Guests and crew will not be able to get online. Please let the ETO or 50N support know.
+{% else %}
+The internet appears to be unavailable: Insight's own checks can't reach the internet, although the router still shows a connection. Guests and crew may not be able to get online. Please let the ETO or 50N support know.
+{% endif %}
+{% endblock %}
+{% block summary %}
+{% if confirmed %}All WAN links are down or failing health checks{% if probes_say_down %}, and Insight's internet checks fail{% endif %}.{% else %}Insight's internet checks fail on every target, but the router reports at least one link connected. The cause may be upstream of the router.{% endif %}
+{% endblock %}
+{% block causes %}
+{% if confirmed %}
+- Satellite and cellular service outages at the same time
+- A fault on the router or its WAN connections
+- Power or cabling problem affecting the WAN equipment
+{% else %}
+- A problem beyond the router (provider outage, routing)
+- The router's health checks may not be detecting the failure
+- A firewall or outbound policy blocking traffic
+{% endif %}
+{% endblock %}
+{% block steps %}
+- Check each WAN link's state and health check in the router
+- Check the Starlink dish and cellular modem power and cabling
+- Compare with Insight's probe targets in the evidence
+{% endblock %}
+{% block engineer %}Links: {{ links | join_and }}. Router reports all down: {{ router_says_down }}. Probes report internet unreachable: {{ probes_say_down }}.{% endblock %}

@@ -98,10 +98,10 @@
 
 ## 14. Diagnostic engine
 
-- [ ] 14.1 Implement the rule base class and metadata (`requires`, durations, severity, `explains`), plus Jinja2 crew and engineer templates for each rule. Verify a test rule that renders both templates from finding facts.
-- [ ] 14.2 Implement the evaluation pipeline: freshness checks; monitoring-failure findings; insufficient-information downgrade and skipping of rules whose optional data is essential; evaluation; grouping of symptoms under causes; durations and flapping detection; persistence of finding changes. Verify unit tests for each stage.
-- [ ] 14.3 Implement the finding lifecycle (open, last observed, resolved, intermittent) with timeline events. Verify tests for a brief blip, resolution after the clearing duration, and intermittent marking.
-- [ ] 14.4 Add a wording lint test: crew templates must not contain IP or MAC address patterns, port numbers or protocol names, and non-confirmed templates must use hedged wording. Verify the test fails on a deliberately bad template.
+- [x] 14.1 Implement the rule base class and metadata (`requires`, durations, severity, `explains`), plus Jinja2 crew and engineer templates for each rule. Verify a test rule that renders both templates from finding facts.
+- [x] 14.2 Implement the evaluation pipeline: freshness checks; monitoring-failure findings; insufficient-information downgrade and skipping of rules whose optional data is essential; evaluation; grouping of symptoms under causes; durations and flapping detection; persistence of finding changes. Verify unit tests for each stage.
+- [x] 14.3 Implement the finding lifecycle (open, last observed, resolved, intermittent) with timeline events. Verify tests for a brief blip, resolution after the clearing duration, and intermittent marking.
+- [x] 14.4 Add a wording lint test: crew templates must not contain IP or MAC address patterns, port numbers or protocol names, and non-confirmed templates must use hedged wording. Verify the test fails on a deliberately bad template.
 
 ## 15. Initial rule catalogue
 

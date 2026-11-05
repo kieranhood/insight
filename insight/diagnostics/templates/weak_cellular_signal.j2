@@ -1,0 +1,14 @@
+{% block title %}Weak mobile signal on the connection in use{% endblock %}
+{% block crew %}
+The yacht is using its mobile data connection ({{ link }}) and the signal is weak, so the internet will be slow and may drop out. This usually improves as the yacht moves closer to shore. Nothing needs to be done on board.
+{% endblock %}
+{% block summary %}{{ link }} in use with RSRP {{ rsrp }} dBm and SINR {{ sinr }} dB.{% endblock %}
+{% block causes %}
+- Distance from the nearest cell tower
+- Antenna position or cabling
+{% endblock %}
+{% block steps %}
+- Check the cellular antenna connections
+- Consider whether the primary link can be restored
+{% endblock %}
+{% block engineer %}Signal on {{ link }}: RSRP {{ rsrp }}, SINR {{ sinr }}.{% endblock %}

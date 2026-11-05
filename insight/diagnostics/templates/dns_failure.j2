@@ -1,0 +1,16 @@
+{% block title %}Websites can't be found, though the connection works{% endblock %}
+{% block crew %}
+Websites and apps may fail to load even though the internet connection itself appears to be working. The service on board that turns website names into addresses is probably not responding. Please let the ETO or 50N support know.
+{% endblock %}
+{% block summary %}A DNS problem is suspected: lookups through the yacht's resolver fail{% if public_ok %} while a public resolver succeeds{% endif %}{% if ip_ok %}, and IP connectivity works{% endif %}.{% endblock %}
+{% block causes %}
+- The router's DNS service or its upstream servers are failing
+- A misconfigured DNS server handed out by DHCP
+- DNS filtering blocking lookups
+{% endblock %}
+{% block steps %}
+- Check the DNS servers handed out on the LAN
+- Check the router's DNS proxy settings and upstream servers
+- Test a lookup directly against the router's address
+{% endblock %}
+{% block engineer %}Public resolver OK: {{ public_ok }}; IP connectivity OK: {{ ip_ok }}.{% endblock %}

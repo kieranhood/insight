@@ -1,0 +1,20 @@
+{% block title %}Wi-Fi access point lost power or connection from its switch{% endblock %}
+{% block crew %}
+{% if confirmed %}
+Wi-Fi is not working in {{ where }}{% if services %} ({{ services | join_and }}){% endif %}: the Wi-Fi unit there has lost power from the network cabinet. The ETO should check the network cabinet that feeds it.
+{% else %}
+Wi-Fi is probably not working in {{ where }}{% if services %} ({{ services | join_and }}){% endif %}: the Wi-Fi unit there seems to have lost its connection to the network cabinet. The ETO should check the network cabinet that feeds it.
+{% endif %}
+{% endblock %}
+{% block summary %}{{ device }} on {{ switch }} port {{ port }}: link {{ "down" if link_up is false else "up" }}{% if poe_w is not none %}, PoE {{ poe_w }} W{% else %}, PoE power data not available{% endif %}; the access point is not answering.{% endblock %}
+{% block causes %}
+- PoE disabled or the switch's PoE budget exceeded
+- Cable or patch fault between the switch and the access point
+- Switch reboot or power event
+{% endblock %}
+{% block steps %}
+- Check {{ switch }} port {{ port }}: PoE mode, power draw and link
+- Check the switch's PoE budget
+- Check the patch cable and the access point's connection
+{% endblock %}
+{% block engineer %}Attachment from {{ attachment }}.{% endblock %}

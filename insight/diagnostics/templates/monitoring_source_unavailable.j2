@@ -1,0 +1,18 @@
+{% block title %}Insight can't currently check {{ covers }}{% endblock %}
+{% block crew %}
+{% if optional %}
+Insight can't currently get {{ covers }}. This doesn't mean anything is wrong; Insight carries on checking everything else.
+{% else %}
+Insight can't currently check {{ covers }}, so it can't tell whether they are working. This doesn't mean anything is wrong with them. Please let the ETO or 50N support know if it continues.
+{% endif %}
+{% endblock %}
+{% block summary %}Insight cannot collect from {{ source }} ({{ reason }}) for {{ since_s | minutes }}.{% endblock %}
+{% block causes %}
+{% if reason == "authentication" %}- The credentials Insight uses were changed or revoked{% elif reason == "unparseable" %}- A firmware update changed the interface Insight reads{% elif reason == "timeout" %}- The device is overloaded or the network path is slow{% else %}- The device is off, rebooting or unreachable from Insight{% endif %}
+- Network path between Insight and the device
+{% endblock %}
+{% block steps %}
+- Check the source's settings and last error under Sources
+- Check that the device is powered and reachable from Insight
+{% endblock %}
+{% block engineer %}Source {{ source }}: {{ reason }}.{% endblock %}

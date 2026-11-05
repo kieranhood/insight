@@ -1,0 +1,16 @@
+{% block title %}Internet slow or dropping out{% endblock %}
+{% block crew %}
+The internet is working but is slow or dropping out at times{% if is_starlink %} on the Starlink connection{% endif %}. Pages may take a long time to load and calls may break up. Insight can't yet tell why{% if is_starlink and not dish_data %}, because detailed information from the Starlink dish isn't available{% endif %}. Nothing needs to be done on board unless it continues; the ETO may want to look into it.
+{% endblock %}
+{% block summary %}{{ link }} is degraded: {{ loss_pct }}% loss{% if rtt_ms is not none %}, {{ rtt_ms }} ms round trip{% endif %}{% if http_slow %}, web checks slower than normal{% endif %}. Cause could not be determined{% if is_starlink and not dish_data %} because detailed dish data is unavailable{% endif %}.{% endblock %}
+{% block causes %}
+{% if is_starlink %}- Partial sky obstruction or weather affecting the dish{% endif %}
+- Congestion or problems at the provider
+- Heavy use of the connection on board
+{% endblock %}
+{% block steps %}
+{% if is_starlink and not dish_data %}- Check whether the dish's status interface is reachable (see Sources){% endif %}
+- Check usage and throughput on the router
+- Compare latency history with the time the problem started
+{% endblock %}
+{% block engineer %}Measured through {{ link }} by Insight's probes. Confidence is limited to "insufficient information" until a cause is evidenced.{% endblock %}

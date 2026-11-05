@@ -32,6 +32,13 @@ DEFAULTS: dict[str, Any] = {
     "low_disk_free_mb": 1024,
     "starlink_dish_address": "192.168.100.1:9200",
     "starlink_wan": None,
+    "threshold_degraded_loss_pct": 5.0,
+    "threshold_degraded_latency_ms": 600.0,
+    "threshold_obstruction_fraction": 0.05,
+    "threshold_weak_rsrp_dbm": -110.0,
+    "threshold_weak_sinr_db": 0.0,
+    "threshold_channel_util_pct": 80.0,
+    "threshold_ap_clients": 40,
 }
 
 

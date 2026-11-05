@@ -1,0 +1,16 @@
+{% block title %}Every internet connection is struggling{% endblock %}
+{% block crew %}
+All of the yacht's internet connections ({{ links | join_and }}) appear to be slow or dropping out at the same time. The internet may be unreliable for guests and crew. This could have several causes, so please let the ETO or 50N support know.
+{% endblock %}
+{% block summary %}All connected links ({{ links | join_and }}) show high latency or loss simultaneously. Several explanations are possible.{% endblock %}
+{% block causes %}
+- A problem on the router or local network affecting all links
+- Heavy traffic on board saturating every link
+- Coincident provider problems
+{% endblock %}
+{% block steps %}
+- Check router CPU load and throughput
+- Look for a single heavy user or device
+- Check each link's latency history
+{% endblock %}
+{% block engineer %}Links affected: {{ links | join_and }}.{% endblock %}

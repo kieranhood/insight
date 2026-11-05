@@ -1,0 +1,20 @@
+{% block title %}Wi-Fi access point offline{% endblock %}
+{% block crew %}
+{% if confirmed %}
+Wi-Fi is not working in {{ where }}{% if services %} ({{ services | join_and }}){% endif %}, because the Wi-Fi unit there has disconnected. People there may have no Wi-Fi or a weak signal from nearby areas. The ETO should check it.
+{% else %}
+Wi-Fi may not be working in {{ where }}: the Wi-Fi unit there has stopped answering Insight's checks. People there may have no Wi-Fi or a weak signal. The ETO should check it.
+{% endif %}
+{% endblock %}
+{% block summary %}{{ device }} is {% if confirmed %}reported disconnected{% else %}not answering reachability checks{% endif %}.{% endblock %}
+{% block causes %}
+- The access point has lost power or its network cable
+- The access point has crashed or is rebooting
+{% if not confirmed %}- Reachability checks are being blocked while the access point still works{% endif %}
+{% endblock %}
+{% block steps %}
+- Check the access point's switch port, PoE and cabling
+- Check the Unleashed dashboard for the access point's status
+- Power-cycle the access point if safe to do so
+{% endblock %}
+{% block engineer %}Access point {{ device }} ({{ "location: " ~ where if has_location else "no location set" }}).{% endblock %}

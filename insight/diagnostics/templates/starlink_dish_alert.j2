@@ -1,0 +1,14 @@
+{% block title %}{{ headline }}{% endblock %}
+{% block crew %}
+{{ headline }}.
+{% if category == "heat" %}The internet may be slower until it cools down. If it carries on, please let the ETO know.{% elif category == "weather" %}This is normal in cold weather. Nothing needs to be done on board.{% elif category in ("mounting", "cabling") %}The ETO should check the dish's {{ "mounting" if category == "mounting" else "cable" }} when convenient.{% else %}Please let the ETO or 50N support know.{% endif %}
+{% endblock %}
+{% block summary %}Dish alert active: {{ alert }}.{% endblock %}
+{% block causes %}
+{% if category == "heat" %}- High ambient temperature or blocked airflow around the dish or power supply{% elif category == "mounting" %}- Dish not level on its mount{% elif category == "cabling" %}- Damaged or poor-quality cable to the dish{% else %}- See the Starlink documentation for this alert{% endif %}
+{% endblock %}
+{% block steps %}
+- Check the dish and its power supply
+- Watch whether the alert clears
+{% endblock %}
+{% block engineer %}Alert {{ alert }} (category {{ category }}). The dish gives no alert time; Insight records when it first saw it.{% endblock %}

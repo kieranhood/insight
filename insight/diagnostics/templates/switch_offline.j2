@@ -1,0 +1,22 @@
+{% block title %}Network switch offline{% endblock %}
+{% block crew %}
+{% if confirmed %}
+A network cabinet switch{% if has_location %} in {{ where }}{% endif %} has gone offline.
+{% else %}
+A network cabinet switch{% if has_location %} in {{ where }}{% endif %} appears to be offline.
+{% endif %}
+{% if affected_places %}Wi-Fi and wired equipment in {{ affected_places | join_and }} {% if confirmed %}will{% else %}may{% endif %} not work.{% elif affected_count %}{{ affected_count }} Wi-Fi units and other equipment connected to it {% if confirmed %}will{% else %}may{% endif %} not work.{% endif %}
+The ETO should check the cabinet's power and the switch.
+{% endblock %}
+{% block summary %}{{ device }} is {% if confirmed %}reported offline by the controller{% else %}not answering reachability checks{% endif %}; {{ affected_count }} device{{ "s" if affected_count != 1 }} behind it.{% endblock %}
+{% block causes %}
+- Loss of power to the switch or its cabinet
+- Uplink cable or port failure
+- Switch crash or firmware fault
+{% endblock %}
+{% block steps %}
+- Check power to the switch (UPS, breaker)
+- Check the uplink port on the upstream switch
+- Check the controller's event log for the switch
+{% endblock %}
+{% block engineer %}Switch {{ device }}; downstream devices: {{ affected_count }}.{% endblock %}

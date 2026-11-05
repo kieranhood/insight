@@ -1,0 +1,14 @@
+{% block title %}Running on the backup internet connection{% endblock %}
+{% block crew %}
+The main internet connection ({{ primary }}) is unavailable, so the yacht has switched to its backup{% if backup_is_cellular %} mobile data connection{% else %} connection ({{ backup }}){% endif %}. The internet still works, but it may be slower{% if backup_is_cellular %} and uses mobile data, which can be expensive{% endif %}. Nothing needs to be done on board: the yacht will switch back automatically when {{ primary }} recovers.
+{% endblock %}
+{% block summary %}{{ primary }} is {{ primary_state }}; traffic has failed over to {{ backup }}.{% endblock %}
+{% block causes %}
+- {{ primary }} outage or failing health check
+{% if backup_is_cellular %}- Expect higher latency and metered data use on {{ backup }}{% endif %}
+{% endblock %}
+{% block steps %}
+- Check why {{ primary }} is down (see its state and any dish findings)
+{% if backup_is_cellular %}- Watch data usage on {{ backup }} if the outage continues{% endif %}
+{% endblock %}
+{% block engineer %}Primary {{ primary }} ({{ primary_state }}); in use: {{ backup }}.{% endblock %}

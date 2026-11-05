@@ -1,0 +1,14 @@
+{% block title %}Insight is running out of storage space{% endblock %}
+{% block crew %}
+Insight is running low on storage space and has started removing its oldest records. Monitoring continues. Please let 50N support know.
+{% endblock %}
+{% block summary %}{{ free_mb }} MB free (threshold {{ threshold_mb }} MB). Oldest detailed readings are being removed to keep recording.{% endblock %}
+{% block causes %}
+- Retention periods set longer than the disk allows
+- Other data filling the appliance's disk
+{% endblock %}
+{% block steps %}
+- Check disk usage on the appliance
+- Review retention settings
+{% endblock %}
+{% block engineer %}Free {{ free_mb }} MB, threshold {{ threshold_mb }} MB.{% endblock %}

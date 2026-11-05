@@ -87,6 +87,9 @@ class StateStore:
         self.stale_factor = stale_factor
         self.sources: dict[str, SourceStatus] = {}
         self.snapshots: dict[str, Snapshot] = {}
+        # Last known port attachments, kept when a switch stops reporting (e.g. it is offline):
+        # cabling rarely changes, and it lets diagnosis say what sits behind a failed switch.
+        self.attachments: dict[tuple[str, str], Port] = {}
 
     # -- source lifecycle ---------------------------------------------------------
     def configure_source(
@@ -140,6 +143,9 @@ class StateStore:
         if previous is not None:
             events.extend(diff_snapshots(previous, snapshot))
         self.snapshots[snapshot.source_id] = snapshot
+        for port in snapshot.ports:
+            if port.neighbour_mac:
+                self.attachments[(port.device_key, port.port_id)] = port
         events.extend(snapshot.events)
         status.state = SourceState.OK
         status.last_success_at = snapshot.collected_at
@@ -224,6 +230,12 @@ class StateStore:
     def ports(self, device_key: str | None = None) -> list[Port]:
         ports: list[Port] = self._collect("ports")
         return [p for p in ports if device_key is None or p.device_key == device_key]
+
+    def topology_ports(self) -> list[Port]:
+        """Current ports plus remembered attachments for ports no longer reported."""
+        current = {(p.device_key, p.port_id): p for p in self.ports()}
+        remembered = [p for key, p in self.attachments.items() if key not in current]
+        return [*current.values(), *remembered]
 
     def wan_links(self) -> list[WanLink]:
         links: list[WanLink] = self._collect("wan_links")

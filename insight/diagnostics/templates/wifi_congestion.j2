@@ -1,0 +1,16 @@
+{% block title %}Wi-Fi busy in one area{% endblock %}
+{% block crew %}
+Wi-Fi in {{ where }} is probably slow because it is very busy{% if clients %} ({{ clients }} devices connected){% endif %}. It should improve when fewer devices are in use there. Nothing needs to be done on board, but the ETO may want to look at it if it happens often.
+{% endblock %}
+{% block summary %}{{ device }}: {% for band, pct in util.items() %}{{ band }} {{ pct }}% busy{% if not loop.last %}, {% endif %}{% endfor %}{% if clients %}{% if util %}; {% endif %}{{ clients }} clients{% endif %}. Likely local wireless congestion.{% endblock %}
+{% block causes %}
+- Many devices in one area (for example during an event)
+- Interference from neighbouring networks or equipment
+- Channel or power settings not suited to the space
+{% endblock %}
+{% block steps %}
+- Investigate channel utilisation and interference at this access point
+- Review channel and power settings in Unleashed
+- Consider load on neighbouring access points
+{% endblock %}
+{% block engineer %}Access point {{ device }} at {{ where }}.{% endblock %}

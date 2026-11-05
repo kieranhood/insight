@@ -1,0 +1,18 @@
+{% block title %}Starlink dish's view of the sky is blocked{% endblock %}
+{% block crew %}
+{% if confirmed %}
+The internet is dropping out because the Starlink dish's view of the sky is partly blocked, probably by part of the yacht such as the mast or a radar dome at the current heading. It should recover as the yacht's heading changes. Nothing needs to be fixed on board.
+{% else %}
+The internet may drop out at times because the Starlink dish's view of the sky appears to be partly blocked. It should improve as the yacht's heading changes. Nothing needs to be fixed on board.
+{% endif %}
+{% endblock %}
+{% block summary %}Dish reports {{ fraction_pct }}% obstructed{% if currently %} and is obstructed now{% endif %}; {{ outages }} recent outage{{ "s" if outages != 1 }} caused by obstruction.{% endblock %}
+{% block causes %}
+- Yacht structure (mast, radar, superstructure) in the dish's field of view at this heading
+- Nearby structures when moored
+{% endblock %}
+{% block steps %}
+- Review the obstruction map in the Starlink app when convenient
+- Consider dish placement if obstruction persists across headings
+{% endblock %}
+{% block engineer %}Obstruction fraction {{ fraction_pct }}%, currently obstructed: {{ currently }}.{% endblock %}

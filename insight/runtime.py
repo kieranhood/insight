@@ -14,6 +14,10 @@ from insight.auth.credentials import CredentialVault
 from insight.auth.sessions import SessionStore
 from insight.collection.scheduler import CollectionResult, Scheduler
 from insight.config_store import ConfigStore
+from insight.diagnostics.context import EvalContext
+from insight.diagnostics.engine import Engine
+from insight.diagnostics.rules import all_rules
+from insight.diagnostics.store import FindingStore
 from insight.discovery import DiscoveryStore
 from insight.history import History
 from insight.inventory import Inventory
@@ -48,6 +52,9 @@ class Runtime:
         self.inventory = Inventory(self.db, self.writer)
         self.history = History(self.db, self.writer, self.config)
         self.disk_status: dict[str, Any] = {}
+        self.engine = Engine(self.db, self.writer, all_rules())
+        self.findings = FindingStore(self.db)
+        self.evaluation_interval = 15.0
         self.discovery = DiscoveryStore(self.db, self.writer, self.inventory)
         self.discovery_run: Any = None
         self._listeners: list[asyncio.BaseTransport] = []
@@ -138,6 +145,7 @@ class Runtime:
         self._tasks.append(flush)
         await asyncio.to_thread(self.history.record_downtime_since_last_heartbeat)
         self._tasks.append(asyncio.create_task(self._housekeeping(), name="housekeeping"))
+        self._tasks.append(asyncio.create_task(self._evaluation_loop(), name="diagnostics"))
         if not self.scheduler.adapters:
             self.load_sources()
         self._update_expected_interval()
@@ -148,6 +156,41 @@ class Runtime:
             from insight.discovery.listeners import start_listeners
 
             self._listeners = await start_listeners(self.on_announcement)
+
+    def source_kinds(self) -> dict[str, str]:
+        """Effective kind per source; simulator sources count as the role they play."""
+        kinds = {sid: status.kind for sid, status in self.state.sources.items()}
+        for source in self.sources.list():
+            if source.kind == "simulator":
+                kinds[source.id] = str(source.options.get("role") or source.address)
+        return kinds
+
+    def eval_context(self, now: datetime | None = None) -> EvalContext:
+        return EvalContext(
+            now=now or utcnow(),
+            state=self.state,
+            inventory=self.inventory,
+            config=self.config.all(),
+            recent_events=list(self.recent_events),
+            source_kinds=self.source_kinds(),
+            disk=dict(self.disk_status),
+        )
+
+    def evaluate(self, now: datetime | None = None) -> list[Event]:
+        """One diagnostic cycle. Returns the finding events it produced (already recorded)."""
+        events = self.engine.evaluate(self.eval_context(now))
+        if events:
+            self.writer.add_events(events, systems=("insight",))
+            self.recent_events.extend(events)
+        return events
+
+    async def _evaluation_loop(self) -> None:
+        while True:
+            await asyncio.sleep(self.evaluation_interval)
+            try:
+                await asyncio.to_thread(self.evaluate)
+            except Exception:
+                log.exception("diagnostic evaluation failed")
 
     async def _housekeeping(self) -> None:
         """Heartbeat (for downtime gaps), disk protection every 10 minutes, retention nightly."""
