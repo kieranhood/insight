@@ -2,11 +2,11 @@
 
 ## 1. Interface verification
 
-- [ ] 1.1 Verify the Peplink local router API against Peplink's documentation and, where possible, the on-board router's firmware. Cover: how to enable it, authentication, WAN status, health checks, link in use, cellular signal, usage, client/DHCP/ARP lists (for discovery) and rate limits. Record findings and sample responses in `docs/integrations/peplink.md`. Verify the doc lists each spec item as available or not available.
+- [x] 1.1 Verify the Peplink local router API against Peplink's documentation and, where possible, the on-board router's firmware. Cover: how to enable it, authentication, WAN status, health checks, link in use, cellular signal, usage, client/DHCP/ARP lists (for discovery) and rate limits. Record findings and sample responses in `docs/integrations/peplink.md`. Verify the doc lists each spec item as available or not available.
 - [ ] 1.2 Verify the UniFi Network controller's local API: the official Network API, with the classic API checked for port PoE, LLDP neighbours and uplinks. Also verify switch SNMP (IF-MIB, LLDP-MIB, POWER-ETHERNET-MIB), plus the controller's client list (for discovery). Record the controller's location on board, findings and samples in `docs/integrations/unifi.md`. Verify the doc states which fields come from a reliable source and which from an optional one.
-- [ ] 1.3 Verify Ruckus Unleashed SNMP OIDs on the master AP, the syslog message formats for AP join, leave and reboot (including whether the port is configurable), and `aioruckus` data for APs, WLANs and clients. Record findings and samples in `docs/integrations/ruckus-unleashed.md`. Verify the doc includes sample syslog lines for each event type.
+- [x] 1.3 Verify Ruckus Unleashed SNMP OIDs on the master AP, the syslog message formats for AP join, leave and reboot (including whether the port is configurable), and `aioruckus` data for APs, WLANs and clients. Record findings and samples in `docs/integrations/ruckus-unleashed.md`. Verify the doc includes sample syslog lines for each event type.
 - [ ] 1.4 Verify the Starlink dish's local gRPC status interface: fields for obstruction, outages, alerts and stowed state, plus reachability from the LAN, including any Peplink static route needed. Record findings and samples in `docs/integrations/starlink.md`. Verify the doc includes a captured status response.
-- [ ] 1.5 Capture identification signatures for discovery: MAC vendor prefixes, open management ports, HTTP page titles, TLS certificate subjects and mDNS/SSDP service types for the Peplink router, UniFi Network controller, Ruckus Unleashed master and Starlink dish. Record them in `docs/integrations/discovery.md`. Verify each of the four has at least two independent signatures.
+- [x] 1.5 Capture identification signatures for discovery: MAC vendor prefixes, open management ports, HTTP page titles, TLS certificate subjects and mDNS/SSDP service types for the Peplink router, UniFi Network controller, Ruckus Unleashed master and Starlink dish. Record them in `docs/integrations/discovery.md`. Verify each of the four has at least two independent signatures.
 
 ## 2. Project scaffold and container
 
@@ -38,7 +38,7 @@
 - [x] 5.1 Implement the adapter interface and scheduler: one task per source, per-source intervals with jitter, timeouts, and isolation so one adapter's failure doesn't affect others. Verify a test in which a hanging adapter does not delay a second adapter's cycles.
 - [x] 5.2 Implement monitoring-failure detection for unreachable sources, authentication failures and unparseable data, including staleness marking and recovery events. Verify tests for each failure type and for recovery.
 - [x] 5.3 Implement the reliable/optional classification: an optional adapter failing never blocks reliable collection. Verify a test in which an optional adapter raises errors while reliable data keeps updating.
-- [ ] 5.4 Implement the simulator source, which replays scripted scenarios (failover, AP PoE loss, dish obstruction, controller outage, DNS failure) through the full pipeline. Verify that the simulator runs each scenario and emits the expected events.
+- [x] 5.4 Implement the simulator source, which replays scripted scenarios (failover, AP PoE loss, dish obstruction, controller outage, DNS failure) through the full pipeline. Verify that the simulator runs each scenario and emits the expected events.
 - [x] 5.5 Wire the collection-cycle timestamp into `/healthz` so the container reports unhealthy after three missed intervals. Verify a test that stalls the scheduler and expects an unhealthy response.
 
 ## 6. Device inventory and setup

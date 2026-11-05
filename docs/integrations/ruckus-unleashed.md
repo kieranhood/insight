@@ -62,11 +62,11 @@ are excluded.
 
 | Method | Request sent | Use |
 |---|---|---|
-| `get_system_info()` | `getconf comp='system'` (identity, sysinfo, port, unleashed-network) | master name, model, serial, version, uptime |
+| `get_system_info()` | `getstat comp='system'` with `<identity/><sysinfo/><port/><unleashed-network/>` | master name, model, serial, version, uptime |
 | `get_ap_stats(StatsLevel.L1)` | `getstat comp='stamgr' <ap LEVEL='1'/>` | per-AP status, radios, channels, airtime |
 | `get_aps()` | `getconf comp='ap-list'` | configured AP list (includes offline APs), approved flag, version |
 | `get_active_clients(StatsLevel.L1)` | `getstat comp='stamgr' <client LEVEL='1'/>` | clients |
-| `get_vap_stats()` | `getstat comp='stamgr' <vap LEVEL='1'/>` | per-AP, per-radio SSID/BSSID, channel, client count (1 request) |
+| `get_vap_stats()` | `getstat comp='stamgr' <vap INTERVAL-STATS='no' LEVEL='1'/>` | per-AP, per-radio SSID/BSSID, channel, client count (1 request) |
 | `get_wlans()` | `getconf comp='wlansvc-list'` **plus 7 policy lookups** | SSIDs. Poll rarely. Always use `redact_secrets=True`. |
 | `get_ap_events()` / `get_events(limit=…)` | `getstat comp='eventd' <xevent …/>` | optional pull of the same AP join/lost events as syslog (gap-fill after an Insight restart) |
 
@@ -187,16 +187,18 @@ Proposed Python regexes (tested against `tests/fixtures/ruckus/syslog_samples.tx
 
 ```python
 MAC = r"(?P<ap_mac>(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2})"
-AP = r"AP\[(?P<ap_name>[^\]]*?)@" + MAC + r"\]"   # lazy name: tolerates '@' in AP names
+AP = r"AP\[(?P<ap_name>[^\]]*?)@" + MAC + r"\]"  # lazy name: tolerates '@' in AP names
 
 AP_JOINED = re.compile(
-    r"eventd_to_syslog\(\):" + AP +
-    r" joins with uptime \[(?P<uptime_s>\d*)\] s"
-    r"(?: and last disconnected reason \[(?P<reason>[^\]]*)\])?")
-AP_DISCONNECTED = re.compile(r"eventd_to_syslog\(\):Lost contact with " + AP)          # Unverified wording
+    r"eventd_to_syslog\(\):" + AP + r" joins with uptime \[(?P<uptime_s>\d*)\] s"
+    r"(?: and last disconnected reason \[(?P<reason>[^\]]*)\])?"
+)
+AP_DISCONNECTED = re.compile(r"eventd_to_syslog\(\):Lost contact with " + AP)  # Unverified wording
 AP_REBOOTED = re.compile(
-    r"eventd_to_syslog\(\):" + AP +
-    r" (?P<boot>warm|cold) boot successfully,\s*last reboot reason \[(?P<reason>[^\]]*)\]")  # 'cold' Unverified
+    r"eventd_to_syslog\(\):"
+    + AP
+    + r" (?P<boot>warm|cold) boot successfully,\s*last reboot reason \[(?P<reason>[^\]]*)\]"
+)  # 'cold' Unverified
 ```
 
 - `heartbeats lost` is deliberately **not** treated as a leave event. It often clears without a
@@ -222,7 +224,7 @@ AP_REBOOTED = re.compile(
   `get_vap_stats` is 3 requests. `get_wlans()` costs 8 requests, so poll it about every 15 min,
   or derive SSIDs from `get_vap_stats()`. `get_aps()` and `get_system_info()` are about 1 request
   each, so poll them every 5 to 15 min.
-- The master is an AP with a small CPU (master CPU 3 to 29% in captures). No published rate limit
+- The master is an AP with a small CPU (master CPU 0 to 29% in captures). No published rate limit
   exists. Do not go below 60 s for AJAX. *Unverified:* whether Insight's session counts against
   a concurrent-admin limit or logs out an engineer using the same account. Use a dedicated account.
 - Default aioruckus client timeout is 10 s total. Pass `timeout=` per call. Data-collection's
@@ -234,7 +236,7 @@ AP_REBOOTED = re.compile(
 
 | Item | Finding |
 |---|---|
-| Unleashed firmware | MIB OIDs confirmed on 200.14 (R850), 200.15 (T300) and 200.19 (R650, R770) by LibreNMS captures. `sysObjectID` varies (`…25053.3.1.5.20` > 200.14, `…3.1.5.15` ≤ 200.14, `0.0.0` on one R650, `…3.1.4.125` on an R770), so it cannot be relied on. |
+| Unleashed firmware | LibreNMS captures confirm the model, serial and version OIDs on 200.14 (R850), 200.15 (T300) and 200.19 (R650, R770). They confirm the AP and client counts on 200.15 and 200.19, and the registered-AP count and all-clients count on 200.19 only. `sysObjectID` varies (`…25053.3.1.5.20` > 200.14, `…3.1.5.15` ≤ 200.14, `0.0.0` on one R650, `…3.1.4.125` on an R770), so it cannot be relied on. |
 | aioruckus | v0.49, released 2026-09-15 on PyPI. Last commit 2026-09-15 (tests on Python 3.15). "Compatible with all Ruckus Unleashed versions, and ZoneDirector 9.10 onwards." Auto-detects Unleashed, ZD, SmartZone and Ruckus One. |
 | Python | `requires-python >=3.9`. Insight is 3.12, which is fine. |
 | Dependencies | `aiohttp`, `cryptography`, `xmltodict` (plus `typing_extensions` < 3.12). **aiohttp is new to Insight** (Insight uses httpx). Pin it. |
