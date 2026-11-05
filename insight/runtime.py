@@ -11,6 +11,7 @@ from insight.auth.credentials import CredentialVault
 from insight.auth.sessions import SessionStore
 from insight.collection.scheduler import CollectionResult, Scheduler
 from insight.config_store import ConfigStore
+from insight.inventory import Inventory
 from insight.settings import Settings
 from insight.sources import SourceStore
 from insight.state import StateStore
@@ -36,6 +37,7 @@ class Runtime:
         self.vault = CredentialVault(settings.data_dir / "secret.key")
         self.sources = SourceStore(self.db, self.writer, self.vault)
         self.state = StateStore()
+        self.inventory = Inventory(self.db, self.writer)
         self.scheduler = Scheduler(self.state, hooks=[self._on_collection])
         self.reload_tls: Callable[[], None] = lambda: None
         self._tasks: list[asyncio.Task[None]] = []
@@ -59,6 +61,7 @@ class Runtime:
     async def _on_collection(self, result: CollectionResult) -> None:
         if result.snapshot is not None:
             self.writer.add_metrics(result.snapshot.metrics)
+            result.events.extend(await asyncio.to_thread(self.inventory.sync, result.snapshot))
         if result.events:
             status = self.state.sources.get(result.source_id)
             systems = (status.kind,) if status else ()

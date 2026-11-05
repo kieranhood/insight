@@ -43,10 +43,10 @@
 
 ## 6. Device inventory and setup
 
-- [ ] 6.1 Implement the guided source setup: enter address and credentials, test the connection, report errors in plain words naming the source, and save the source. Verify tests for success, bad credentials and an unreachable address, using a fake adapter.
-- [ ] 6.2 Implement inventory population from sources: add new devices with a timeline event, update details, and mark devices no longer reported. Verify tests for each case.
-- [ ] 6.3 Implement manual devices that are monitored by probes only. Verify a test that a manual device appears in the inventory and is scheduled for reachability checks.
-- [ ] 6.4 Implement location tags, display names and service definitions (Internet, Guest Wi-Fi, Crew Wi-Fi). Services map to devices, WAN links and SSIDs, and unmapped SSIDs are flagged. Manual tags persist across refreshes. Verify tests that tags survive a firmware-change refresh and that unmapped SSIDs are listed.
+- [x] 6.1 Implement the guided source setup: enter address and credentials, test the connection, report errors in plain words naming the source, and save the source. Verify tests for success, bad credentials and an unreachable address, using a fake adapter.
+- [x] 6.2 Implement inventory population from sources: add new devices with a timeline event, update details, and mark devices no longer reported. Verify tests for each case.
+- [x] 6.3 Implement manual devices that are monitored by probes only. Verify a test that a manual device appears in the inventory and is scheduled for reachability checks.
+- [x] 6.4 Implement location tags, display names and service definitions (Internet, Guest Wi-Fi, Crew Wi-Fi). Services map to devices, WAN links and SSIDs, and unmapped SSIDs are flagged. Manual tags persist across refreshes. Verify tests that tags survive a firmware-change refresh and that unmapped SSIDs are listed.
 
 ## 7. Peplink adapter
 
