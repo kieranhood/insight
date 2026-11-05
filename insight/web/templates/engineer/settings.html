@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+{% include "engineer/_nav.html" %}
+<h1>Settings</h1>
+{% if saved %}<p class="alert alert-healthy" role="status">Saved.</p>{% endif %}
+{% if error %}<p class="alert alert-critical" role="alert">{{ error }}</p>{% endif %}
+<div class="grid grid-2">
+<section class="card">
+  <h2>Ship's time and history</h2>
+  <form method="post" action="/engineer/settings/general" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Ship's time zone <select name="ship_timezone">{% for tz in timezones %}<option {% if tz == config.ship_timezone %}selected{% endif %}>{{ tz }}</option>{% endfor %}</select><small>Times are shown in this zone. Change it when the yacht changes zone.</small></label>
+    <label>Keep detailed readings (days) <input name="retention_detail_days" type="number" min="1" value="{{ config.retention_detail_days }}"></label>
+    <label>Keep daily summaries (days) <input name="retention_summary_days" type="number" min="30" value="{{ config.retention_summary_days }}"></label>
+    <button class="btn btn-primary" type="submit">Save</button>
+  </form>
+</section>
+<section class="card">
+  <h2>Services</h2>
+  <p class="muted">Choose which Wi-Fi networks make up each service. The Internet service covers all of the router's WAN links.</p>
+  {% if unmapped %}<p class="alert alert-degraded">Not assigned to any service: {{ unmapped | join(", ") }}</p>{% endif %}
+  <form method="post" action="/engineer/settings/services" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    {% for svc in services if svc.value != "internet" %}
+    <fieldset><legend>{{ svc.label }}</legend>
+      {% for ssid in ssids %}<label class="row" style="flex-direction: row; font-weight: 400"><input type="checkbox" name="ssid_{{ svc.value }}" value="{{ ssid }}" style="width: auto; min-height: 0" {% if ssid in mappings[svc].ssid %}checked{% endif %}> {{ ssid }}</label>{% else %}<p class="muted">No Wi-Fi networks reported yet.</p>{% endfor %}
+    </fieldset>
+    {% endfor %}
+    <button class="btn btn-primary" type="submit">Save</button>
+  </form>
+</section>
+<section class="card">
+  <h2>Starlink</h2>
+  <form method="post" action="/engineer/settings/starlink" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Which router link is Starlink? <select name="link"><option value="">Not set (use a link named "Starlink")</option>{% for lk in links %}<option value="{{ lk.source_id }}|{{ lk.link_id }}" {% if config.starlink_wan and config.starlink_wan.link_id == lk.link_id and config.starlink_wan.source_id == lk.source_id %}selected{% endif %}>{{ lk.name }}</option>{% endfor %}</select></label>
+    <p class="muted">Currently: {{ starlink.name if starlink else "none" }}</p>
+    <button class="btn btn-primary" type="submit">Save</button>
+  </form>
+</section>
+<section class="card">
+  <h2>Insight's own checks</h2>
+  <form method="post" action="/engineer/settings/probes" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Internet targets <textarea name="internet_targets">{{ config.probe_internet_targets | join("\n") }}</textarea></label>
+    <label>Names to look up <textarea name="dns_names">{{ config.probe_dns_names | join("\n") }}</textarea></label>
+    <label>Independent public resolver <input name="dns_public_resolver" value="{{ config.probe_dns_public_resolver }}"></label>
+    <label>Web addresses to fetch <textarea name="http_urls">{{ config.probe_http_urls | join("\n") }}</textarea></label>
+    <label>Check every (seconds) <input name="device_interval" type="number" min="10" value="{{ config.probe_device_interval_s }}"></label>
+    <label>Failures in a row before "not answering" <input name="failure_threshold" type="number" min="1" value="{{ config.probe_failure_threshold }}"></label>
+    <label>Starlink dish address <input name="dish_address" value="{{ config.starlink_dish_address }}"></label>
+    <button class="btn btn-primary" type="submit">Save</button>
+  </form>
+</section>
+<section class="card">
+  <h2>Users</h2>
+  <div class="table-wrap"><table class="data"><thead><tr><th>User</th><th>Role</th><th></th></tr></thead><tbody>
+  {% for u in users %}
+  <tr><td>{{ u.username }}{% if user and u.id == user.id %} (you){% endif %}</td>
+    <td><form method="post" action="/engineer/settings/users/{{ u.id }}/role" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="role" aria-label="Role">{% for r in ["crew", "engineer"] %}<option {% if r == u.role.value %}selected{% endif %}>{{ r }}</option>{% endfor %}</select><button class="btn btn-small" type="submit">Set</button></form></td>
+    <td class="actions"><form method="post" action="/engineer/settings/users/{{ u.id }}/password" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input name="password" type="password" placeholder="New password" minlength="10" aria-label="New password" autocomplete="new-password"><button class="btn btn-small" type="submit">Reset</button></form>
+      {% if not (user and u.id == user.id) %}<form method="post" action="/engineer/settings/users/{{ u.id }}/delete" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn btn-small btn-quiet" type="submit">Delete</button></form>{% endif %}</td></tr>
+  {% endfor %}
+  </tbody></table></div>
+  <h3>Add a user</h3>
+  <form method="post" action="/engineer/settings/users" class="filters">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Username <input name="username" required autocomplete="off"></label>
+    <label>Password <input name="password" type="password" minlength="10" required autocomplete="new-password"></label>
+    <label>Role <select name="role"><option>crew</option><option>engineer</option></select></label>
+    <button class="btn btn-primary" type="submit">Add</button>
+  </form>
+</section>
+</div>
+<section class="card"><h2>HTTPS certificate</h2><p><a href="/engineer/settings/certificate">Manage the certificate</a></p></section>
+{% endblock %}

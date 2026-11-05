@@ -47,17 +47,17 @@ def board_context(request: Request) -> dict[str, Any]:
 
 
 @router.get("/")
-async def dashboard(request: Request, user: User = Depends(require_user)) -> Response:  # noqa: B008
+async def dashboard(request: Request, user: User = Depends(require_user)) -> Response:
     return render(request, "crew/dashboard.html", board_context(request))
 
 
 @router.get("/partials/board")
-async def board(request: Request, user: User = Depends(require_user)) -> Response:  # noqa: B008
+async def board(request: Request, user: User = Depends(require_user)) -> Response:
     return render(request, "crew/_board.html", board_context(request))
 
 
 @router.get("/events/stream")
-async def stream(request: Request, user: User = Depends(require_user)) -> StreamingResponse:  # noqa: B008
+async def stream(request: Request, user: User = Depends(require_user)) -> StreamingResponse:
     runtime = runtime_of(request)
 
     async def events() -> AsyncIterator[bytes]:

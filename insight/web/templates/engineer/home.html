@@ -1,3 +1,34 @@
 {% extends "base.html" %}
+{% from "engineer/_macros.html" import status %}
 {% block title %}Engineer{% endblock %}
-{% block content %}<h1>Engineer console</h1>{% endblock %}
+{% block body_attrs %}data-live{% endblock %}
+{% block content %}
+{% include "engineer/_nav.html" %}
+<h1>Engineer console</h1>
+<div class="grid grid-2">
+  <section class="card">
+    <h2>Services</h2>
+    <table class="data"><tbody>
+      <tr><th scope="row">Overall</th><td>{{ status(report.overall.status.value) }}</td><td class="muted">{{ report.overall.reason }}</td></tr>
+      {% for s in report.services %}<tr><th scope="row">{{ s.name }}</th><td>{{ status(s.status.value) }}</td><td class="muted">{{ s.reason }}</td></tr>{% endfor %}
+    </tbody></table>
+  </section>
+  <section class="card">
+    <h2>Systems</h2>
+    <table class="data"><tbody>
+      {% for s in report.systems %}<tr><th scope="row">{{ s.name }}</th><td>{{ status(s.status.value) }}</td><td class="muted">{{ s.reason }}<br><span class="updated">Data {{ s.updated_at | shiptime }}</span></td></tr>{% endfor %}
+    </tbody></table>
+  </section>
+</div>
+<section class="card">
+  <h2>Open findings <span class="count">{{ open | length }}</span></h2>
+  {% include "engineer/_findings_table.html" with context %}
+</section>
+<section class="card">
+  <h2>Monitoring sources</h2>
+  <table class="data"><thead><tr><th>Source</th><th>Type</th><th>State</th><th>Last success</th></tr></thead><tbody>
+  {% for s in sources %}<tr><td><a href="/engineer/sources">{{ s.name }}</a></td><td>{{ s.reliability }}</td><td>{{ "OK" if s.fresh else s.state }}{% if s.optional_errors %} (optional parts failing){% endif %}</td><td>{{ s.last_success_at | shiptime }}</td></tr>{% endfor %}
+  </tbody></table>
+</section>
+<p class="muted">Insight version {{ version }}. Last evaluation {{ last_evaluated_at | shiptime }}.{% if disk and disk.free_mb is defined %} Free space {{ disk.free_mb }} MB.{% endif %}</p>
+{% endblock %}

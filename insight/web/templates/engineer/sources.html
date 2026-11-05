@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Sources{% endblock %}
+{% block body_attrs %}data-live{% endblock %}
+{% block content %}
+{% include "engineer/_nav.html" %}
+<div class="row" style="justify-content: space-between"><h1>Sources</h1><a class="btn btn-primary" href="/engineer/sources/new">Add a source</a></div>
+<section class="card">
+<div class="table-wrap"><table class="data">
+  <thead><tr><th>Source</th><th>Type</th><th>State</th><th>Last success</th><th>Last error</th><th></th></tr></thead>
+  <tbody>
+  {% for s in rows %}
+  <tr>
+    <td><strong>{{ s.name }}</strong><br><span class="muted">{{ s.kind }} · <span class="mono">{{ s.address }}</span></span></td>
+    <td>{{ s.reliability }}{% if s.reliability == "optional" %}<br><span class="muted">unofficial interface</span>{% endif %}</td>
+    <td>{% if s.fresh %}<span class="status status-HEALTHY">OK</span>{% elif s.state == "disabled" %}<span class="status status-UNKNOWN">DISABLED</span>{% elif s.state == "never" %}<span class="status status-UNKNOWN">WAITING</span>{% else %}<span class="status status-CRITICAL">FAILING</span>{% endif %}
+      {% if s.optional_errors %}<br><span class="muted">Optional parts failing: {{ s.optional_errors | join(", ") }}</span>{% endif %}</td>
+    <td>{{ s.last_success_at | shiptime }}</td>
+    <td>{% if s.last_error %}{{ s.failure_kind or "" }}: {{ s.last_error }}<br><span class="muted">{{ s.last_error_at | shiptime }}</span>{% endif %}</td>
+    <td class="actions">{% if s.configurable %}<a class="btn btn-small" href="/engineer/sources/{{ s.id | urlencode }}">Edit</a>
+      <form method="post" action="/engineer/sources/{{ s.id | urlencode }}/toggle" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn btn-small btn-quiet" type="submit">{{ "Disable" if s.enabled else "Enable" }}</button></form>{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+</section>
+{% endblock %}

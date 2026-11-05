@@ -1,0 +1,4 @@
+{% macro status(value) %}<span class="status status-{{ value }}">{{ value }}</span>{% endmacro %}
+{% macro conf(c) %}<span class="tag">{{ c.value if c.value is defined else c }}</span>{% endmacro %}
+{% macro chart(subject, name, range, unit="") %}<div class="chart" data-chart="/api/engineer/readings?subject={{ subject | urlencode }}&amp;name={{ name | urlencode }}&amp;range={{ range }}" aria-label="{{ name }} chart"></div>{% endmacro %}
+{% macro range_buttons(base, current, all) %}<div class="row" role="group" aria-label="Time range">{% for r in all %}<a class="btn btn-small{% if r == current %} btn-primary{% endif %}" href="{{ base }}{{ '&' if '?' in base else '?' }}range={{ r }}">{{ r }}</a>{% endfor %}</div>{% endmacro %}

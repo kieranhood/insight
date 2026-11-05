@@ -127,12 +127,12 @@
 
 ## 18. Engineer console
 
-- [ ] 18.1 Build the findings views: open and resolved findings with full detail, the rule, confidence, evidence with sources and times, and suggested checks. Verify view tests using the PoE-loss scenario.
-- [ ] 18.2 Build the inventory list with search and filters, and device detail pages with readings, history charts, related findings and events, plus switch port detail with PoE and neighbours. Verify view tests, including search by IP address.
-- [ ] 18.3 Build the WAN links view (side-by-side state, health, latency, loss, usage, link in use, failover history) and the timeline view with filters. Verify view tests.
-- [ ] 18.4 Build the sources and monitoring health view (type, last success, state, last error) and the version display. Verify a view test with a failing optional source.
-- [ ] 18.5 Build the configuration screens: source setup, credentials, locations and service mapping, Starlink link marking, probes, retention, ship's time, users and the certificate. Verify view tests that each setting saves and takes effect.
-- [ ] 18.6 Check slow-link behaviour: measure page weight and confirm history is fetched by range. Verify that a scripted check keeps the findings and timeline pages under the agreed size budget, e.g. 200 KB excluding cached assets.
+- [x] 18.1 Build the findings views: open and resolved findings with full detail, the rule, confidence, evidence with sources and times, and suggested checks. Verify view tests using the PoE-loss scenario.
+- [x] 18.2 Build the inventory list with search and filters, and device detail pages with readings, history charts, related findings and events, plus switch port detail with PoE and neighbours. Verify view tests, including search by IP address.
+- [x] 18.3 Build the WAN links view (side-by-side state, health, latency, loss, usage, link in use, failover history) and the timeline view with filters. Verify view tests.
+- [x] 18.4 Build the sources and monitoring health view (type, last success, state, last error) and the version display. Verify a view test with a failing optional source.
+- [x] 18.5 Build the configuration screens: source setup, credentials, locations and service mapping, Starlink link marking, probes, retention, ship's time, users and the certificate. Verify view tests that each setting saves and takes effect.
+- [x] 18.6 Check slow-link behaviour: measure page weight and confirm history is fetched by range. Verify that a scripted check keeps the findings and timeline pages under the agreed size budget, e.g. 200 KB excluding cached assets.
 
 ## 19. Managed appliance and licence notice
 

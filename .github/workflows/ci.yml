@@ -20,6 +20,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e '.[dev]'
+          python -m playwright install --with-deps chromium
       - name: Lint
         run: |
           ruff check .
@@ -27,6 +28,8 @@ jobs:
       - name: Type check
         run: mypy
       - name: Test
+        env:
+          INSIGHT_CHROMIUM: none
         run: pytest -q
 
   image:

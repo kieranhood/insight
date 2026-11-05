@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Inventory{% endblock %}
+{% block content %}
+{% include "engineer/_nav.html" %}
+<h1>Inventory <span class="count">{{ devices | length }}</span></h1>
+<form class="card filters" method="get" action="/engineer/inventory" role="search">
+  <label>Search <input name="q" value="{{ q }}" placeholder="Name, IP, MAC, model, location"></label>
+  <label>Category <select name="category"><option value="">All</option>{% for c in categories %}<option value="{{ c.value }}" {% if c.value == category %}selected{% endif %}>{{ c.value.replace("_", " ") }}</option>{% endfor %}</select></label>
+  <label>Monitoring <select name="monitoring"><option value="">All</option>{% for m in ["reported", "probes only", "no longer reported by its source"] %}<option {% if m == monitoring %}selected{% endif %}>{{ m }}</option>{% endfor %}</select></label>
+  <button class="btn" type="submit">Filter</button>
+</form>
+<section class="card">
+<div class="table-wrap"><table class="data">
+  <thead><tr><th>Device</th><th>Category</th><th>Model</th><th>Address</th><th>Location</th><th>Monitoring</th><th>Reachable</th><th>Last update</th></tr></thead>
+  <tbody>
+  {% for d in devices %}
+  <tr>
+    <td><a href="/engineer/inventory/{{ d.key | urlencode }}">{{ d.label }}</a></td>
+    <td>{{ d.category.value.replace("_", " ") }}</td>
+    <td>{{ d.manufacturer or "" }} {{ d.model or "" }}</td>
+    <td class="mono">{{ d.ip or "not available" }}<br>{{ d.mac or "" }}</td>
+    <td>{{ d.location or "" }}</td>
+    <td>{{ d.monitoring_status }}</td>
+    <td>{% set r = reach.get(d.key) %}{{ "yes" if r and r.reachable else ("no" if r else "not checked") }}</td>
+    <td>{{ d.last_seen_at | shiptime }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+</section>
+<section class="card">
+  <h2>Add a device by hand</h2>
+  <p class="muted">For equipment no source covers. Insight checks that it answers on the network.</p>
+  <form method="post" action="/engineer/inventory/manual" class="filters">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Name <input name="name" required></label>
+    <label>IP address <input name="ip" required></label>
+    <label>Category <select name="category">{% for c in categories %}<option value="{{ c.value }}">{{ c.value.replace("_", " ") }}</option>{% endfor %}</select></label>
+    <label>Location <input name="location"></label>
+    <button class="btn btn-primary" type="submit">Add</button>
+  </form>
+</section>
+{% endblock %}

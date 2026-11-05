@@ -77,7 +77,10 @@ class Sim:
         return events
 
     async def play(self, cycles_per_step: int = 8) -> list[Event]:
-        """Baseline, then each scenario step, letting findings open."""
+        """Baseline, then each scenario step, letting findings open. Starts in the past so
+        that the scenario ends at about the present moment (views ask for "up to now")."""
+        steps = len(self.hub.scenario.steps) - self.hub.step_index
+        self.now = utcnow() - timedelta(seconds=30 * (3 + steps * cycles_per_step) + 5)
         events = await self.settle(3)
         while self.hub.step():
             events.extend(await self.settle(cycles_per_step))

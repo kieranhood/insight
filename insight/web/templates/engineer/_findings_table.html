@@ -1,0 +1,17 @@
+{% set rows = findings if findings is defined else open %}
+{% if not rows %}<p class="muted">None.</p>{% else %}
+<div class="table-wrap"><table class="data">
+  <thead><tr><th>Finding</th><th>Severity</th><th>Confidence</th><th>First detected</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for f in rows %}
+  <tr>
+    <td><a href="/engineer/findings/{{ f.id }}">{{ f.title }}</a><br><span class="muted">{{ f.summary }}</span></td>
+    <td>{{ f.severity.value }}</td>
+    <td>{{ f.confidence.value }}{% if f.intermittent %}, intermittent{% endif %}</td>
+    <td>{{ f.first_detected_at | shiptime }}</td>
+    <td>{{ f.status }}{% if f.resolved_at %} {{ f.resolved_at | shiptime }}{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% endif %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit" if source else "Add" }} source{% endblock %}
+{% block content %}
+{% include "engineer/_nav.html" %}
+<h1>{{ "Edit " ~ source.name if source else "Add a source" }}</h1>
+{% if error %}<p class="alert alert-critical" role="alert">{{ error }}</p>{% endif %}
+{% if not source %}
+<form method="get" action="/engineer/sources/new" class="card filters">
+  <label>Type <select name="kind">{% for k in kinds %}<option value="{{ k.kind }}" {% if k.kind == info.kind %}selected{% endif %}>{{ k.label }}</option>{% endfor %}</select></label>
+  <input type="hidden" name="address" value="{{ address }}">
+  <button class="btn" type="submit">Choose</button>
+</form>
+{% endif %}
+<section class="card">
+  <h2>{{ info.label }}{% if info.reliability.value == "optional" %} <span class="tag">optional, unofficial interface</span>{% endif %}</h2>
+  {% for step in info.setup_steps %}<p class="muted">{{ step }}</p>{% endfor %}
+  <form method="post" action="{{ '/engineer/sources/' ~ (source.id | urlencode) if source else '/engineer/sources' }}" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="kind" value="{{ info.kind }}">
+    <label>Name <input name="name" value="{{ name }}" placeholder="{{ info.label }}"></label>
+    <label>{{ info.address_label }} <input name="address" value="{{ address }}" required>{% if info.address_help %}<small>{{ info.address_help }}</small>{% endif %}</label>
+    {% for f in info.credentials %}
+    <label>{{ f.label }}
+      <input name="cred_{{ f.name }}" {% if f.secret %}type="password" autocomplete="new-password"{% endif %} {% if f.required and not source %}required{% endif %}
+        placeholder="{% if source and source.credentials.get(f.name) %}Stored; leave blank to keep{% endif %}">
+      {% if f.help %}<small>{{ f.help }}</small>{% endif %}
+    </label>
+    {% endfor %}
+    <label>Polling interval in seconds <input name="interval_s" value="{{ interval }}" inputmode="numeric" placeholder="default {{ info.default_interval_s | int }}"></label>
+    <p class="muted">Insight tests the connection before saving, and only reads from the device.</p>
+    <button class="btn btn-primary" type="submit">Test and save</button>
+  </form>
+  {% if source %}
+  <form method="post" action="/engineer/sources/{{ source.id | urlencode }}/delete" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn btn-small btn-quiet" type="submit">Delete this source</button></form>
+  {% endif %}
+</section>
+{% endblock %}

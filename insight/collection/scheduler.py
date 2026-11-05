@@ -42,6 +42,7 @@ class Scheduler:
         self.adapters: dict[str, Adapter] = {}
         self._tasks: dict[str, asyncio.Task[None]] = {}
         self.last_attempt_at: datetime | None = None
+        self.running = False
 
     def add(self, adapter: Adapter) -> None:
         source = adapter.source
@@ -55,6 +56,7 @@ class Scheduler:
         self.adapters[source.id] = adapter
 
     def start(self) -> None:
+        self.running = True
         for source_id in self.adapters:
             self._start_one(source_id)
 
@@ -67,7 +69,8 @@ class Scheduler:
     async def replace(self, adapter: Adapter) -> None:
         await self.remove(adapter.source.id, forget_state=False)
         self.add(adapter)
-        self._start_one(adapter.source.id)
+        if self.running:
+            self._start_one(adapter.source.id)
 
     async def remove(self, source_id: str, forget_state: bool = True) -> None:
         task = self._tasks.pop(source_id, None)
@@ -81,6 +84,7 @@ class Scheduler:
             self.state.remove_source(source_id)
 
     async def stop(self) -> None:
+        self.running = False
         for source_id in list(self._tasks):
             await self.remove(source_id, forget_state=False)
 

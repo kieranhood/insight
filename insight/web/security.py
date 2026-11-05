@@ -57,11 +57,11 @@ def require_session(request: Request) -> Session:
     return session
 
 
-def require_user(session: Session = Depends(require_session)) -> User:  # noqa: B008
+def require_user(session: Session = Depends(require_session)) -> User:
     return session.user
 
 
-def require_engineer(session: Session = Depends(require_session)) -> User:  # noqa: B008
+def require_engineer(session: Session = Depends(require_session)) -> User:
     if not session.user.is_engineer:
         raise Forbidden()
     return session.user

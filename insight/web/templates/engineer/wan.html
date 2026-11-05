@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% from "engineer/_macros.html" import chart, range_buttons %}
+{% block title %}WAN links{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/uPlot.min.css"><script src="/static/js/uPlot.iife.min.js" defer></script>{% endblock %}
+{% block body_attrs %}data-live{% endblock %}
+{% block content %}
+{% include "engineer/_nav.html" %}
+<div class="row" style="justify-content: space-between"><h1>WAN links</h1>{{ range_buttons("/engineer/wan", range, ranges) }}</div>
+{% if not rows %}<p class="card muted">No WAN links reported yet. Add the Peplink router under Sources.</p>{% endif %}
+<div class="grid grid-2">
+{% for r in rows %}
+{% set lk = r.link %}
+<section class="card">
+  <div class="row" style="justify-content: space-between"><h2>{{ lk.name }}{% if r.is_starlink %} <span class="tag">Starlink</span>{% endif %}</h2>{% if lk.in_use %}<span class="status status-HEALTHY">IN USE</span>{% endif %}</div>
+  <dl class="facts">
+    <dt>State</dt><dd>{{ lk.state.value }}</dd>
+    <dt>Priority</dt><dd>{{ lk.priority if lk.priority is not none else "not set" }}</dd>
+    <dt>Type</dt><dd>{{ lk.wan_type.value }}</dd>
+    <dt>Health check</dt><dd>{{ "passing" if lk.health_ok else ("failing" if lk.health_ok is sameas false else "not reported") }}</dd>
+    <dt>Latency</dt><dd>{{ ("%.0f ms" | format(lk.latency_ms)) if lk.latency_ms is not none else "not available" }}</dd>
+    <dt>Loss</dt><dd>{{ ("%.1f%%" | format(lk.loss_pct)) if lk.loss_pct is not none else ("see Insight's checks below" if lk.in_use else "not available") }}</dd>
+    {% if lk.signal %}<dt>Signal</dt><dd>{% for k, v in lk.signal.items() %}{{ k.upper() }} {{ v }}{% if not loop.last %}, {% endif %}{% endfor %}{% if lk.carrier %} ({{ lk.carrier }}{% if lk.network_type %}, {{ lk.network_type }}{% endif %}){% endif %}</dd>{% endif %}
+    <dt>Data used</dt><dd>{{ ("%.1f GB" | format(lk.usage_bytes / 1e9)) if lk.usage_bytes is not none else "not available" }}</dd>
+    <dt>Updated</dt><dd>{{ lk.observed_at | shiptime }}</dd>
+  </dl>
+  {% for subject, name, unit in r.series if name in ("latency_ms", "loss_pct", "signal_rsrp") %}
+  <h3>{{ name.replace("_", " ") }}</h3>{{ chart(subject, name, range) }}
+  {% endfor %}
+</section>
+{% endfor %}
+</div>
+<section class="card">
+  <h2>Insight's own checks</h2>
+  {% if probe %}
+  <dl class="facts"><dt>Internet reachable</dt><dd>{{ "yes" if probe.reachable else "no" }}</dd><dt>Round trip</dt><dd>{{ ("%.0f ms" | format(probe.rtt_ms)) if probe.rtt_ms is not none else "n/a" }}</dd><dt>Loss</dt><dd>{{ "%.1f%%" | format(probe.loss_pct or 0) }}</dd><dt>Measured through</dt><dd>{{ probe.wan_in_use or "unknown link" }}</dd></dl>
+  {{ chart("probe:internet", "rtt_ms", range) }}
+  {% else %}<p class="muted">No results yet.</p>{% endif %}
+</section>
+{% if dish %}
+<section class="card">
+  <h2>Starlink dish (optional source)</h2>
+  <dl class="facts"><dt>Online</dt><dd>{{ dish.online }}</dd><dt>Obstructed</dt><dd>{{ "%.1f%%" | format((dish.obstruction_fraction or 0) * 100) }}{% if dish.currently_obstructed %}, now{% endif %}</dd><dt>Alerts</dt><dd>{{ dish.alerts | join(", ") or "none" }}</dd><dt>Recent outages</dt><dd>{% for o in dish.outages[-5:] %}{{ o.cause }} ({{ "%.0f" | format(o.duration_s or 0) }} s){% if not loop.last %}, {% endif %}{% else %}none{% endfor %}</dd></dl>
+</section>
+{% endif %}
+<section class="card">
+  <h2>Failovers and link changes, last 7 days</h2>
+  {% if not failovers %}<p class="muted">None.</p>{% endif %}
+  {% for e in failovers %}<div class="timeline-item"><time>{{ e.at | shiptime("%d %b %H:%M:%S") }}</time><span>{{ e.message }}</span></div>{% endfor %}
+</section>
+{% endblock %}

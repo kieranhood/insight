@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% from "engineer/_macros.html" import chart, range_buttons %}
+{% block title %}{{ d.label }}{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/uPlot.min.css"><script src="/static/js/uPlot.iife.min.js" defer></script>{% endblock %}
+{% block content %}
+{% include "engineer/_nav.html" %}
+<h1>{{ d.label }}</h1>
+<div class="grid grid-2">
+  <section class="card">
+    <h2>Details</h2>
+    <dl class="facts">
+      {% for label, value in [("Name from source", d.name), ("Manufacturer", d.manufacturer), ("Model", d.model), ("Category", d.category.value.replace("_", " ")), ("IP address", d.ip), ("MAC address", d.mac), ("Firmware", d.firmware), ("Serial", d.serial)] %}
+      <dt>{{ label }}</dt><dd{% if label in ("IP address", "MAC address", "Serial") %} class="mono"{% endif %}>{{ value if value else "not available" }}</dd>
+      {% endfor %}
+      <dt>Online</dt><dd>{{ merged.online.value if merged else "not reported" }}</dd>
+      <dt>Reachable</dt><dd>{% if reach %}{{ "yes" if reach.reachable else "no" }}{% if reach.rtt_ms %} ({{ "%.1f" | format(reach.rtt_ms) }} ms){% endif %}{% else %}not checked{% endif %}</dd>
+      <dt>Sources</dt><dd>{{ d.source_ids | join(", ") or "manual" }}</dd>
+      <dt>Monitoring</dt><dd>{{ d.monitoring_status }}</dd>
+      <dt>Services</dt><dd>{{ services | join(", ") or "none mapped" }}</dd>
+      <dt>Last update</dt><dd>{{ d.last_seen_at | shiptime }}</dd>
+    </dl>
+  </section>
+  <section class="card">
+    <h2>Location and name</h2>
+    <form method="post" action="/engineer/inventory/{{ d.key | urlencode }}/tags" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label>Location <input name="location" value="{{ d.location or '' }}" placeholder="e.g. Main deck, saloon"><small>Used in crew explanations.</small></label>
+      <label>Display name <input name="display_name" value="{{ d.display_name or '' }}"></label>
+      <button class="btn btn-primary" type="submit">Save</button>
+    </form>
+    <h3>Attached to</h3>
+    <p>{% if attachment %}{{ attachment_name }}{% if attachment.port_id %} port {{ attachment.port_id }}{% endif %} ({{ "recorded by an engineer" if attachment.manual else "from neighbour data" }}){% else %}Not known.{% endif %}</p>
+    <form method="post" action="/engineer/inventory/{{ d.key | urlencode }}/attachment" class="inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <select name="switch" aria-label="Switch"><option value="">Not recorded</option>{% for s in switches %}<option value="{{ s.key }}" {% if attachment and attachment.manual and attachment.parent_key == s.key %}selected{% endif %}>{{ s.label }}</option>{% endfor %}</select>
+      <input name="port" placeholder="Port" size="4" aria-label="Port" value="{{ attachment.port_id if attachment and attachment.manual else '' }}">
+      <button class="btn btn-small" type="submit">Record attachment</button>
+    </form>
+    {% if downstream %}<h3>Behind this device</h3><p>{% for k, name in downstream %}<a href="/engineer/inventory/{{ k | urlencode }}">{{ name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+    {% if d.manual %}<form method="post" action="/engineer/inventory/{{ d.key | urlencode }}/remove"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn btn-small btn-quiet" type="submit">Remove from inventory</button></form>{% endif %}
+  </section>
+</div>
+{% if ports %}
+<section class="card">
+  <h2>Ports</h2>
+  <div class="table-wrap"><table class="data">
+    <thead><tr><th>Port</th><th>Link</th><th>Speed</th><th>PoE</th><th>Neighbour</th><th>Errors</th></tr></thead>
+    <tbody>
+    {% for p in ports %}
+    <tr>
+      <td>{{ p.name or p.port_id }}{% if p.is_uplink %} <span class="tag">uplink</span>{% endif %}</td>
+      <td>{{ "up" if p.link_up else ("down" if p.link_up is sameas false else "unknown") }}</td>
+      <td>{{ (p.speed_mbps | int) ~ " Mbps" if p.speed_mbps else "" }}</td>
+      <td>{% if p.poe_capable %}{{ "on" if p.poe_enabled else "off" }}{% if p.poe_power_w is not none %}, {{ "%.1f" | format(p.poe_power_w) }} W{% else %}, power not available{% endif %}{% endif %}</td>
+      <td>{% set n = neighbours.get(p.port_id) %}{% if n %}<a href="/engineer/inventory/{{ n.key | urlencode }}">{{ n.label }}</a>{% elif p.neighbour_mac %}<span class="mono">{{ p.neighbour_name or p.neighbour_mac }}</span>{% endif %}</td>
+      <td>{{ ((p.rx_errors or 0) + (p.tx_errors or 0)) if p.rx_errors is not none else "" }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</section>
+{% endif %}
+<section class="card">
+  <div class="row" style="justify-content: space-between"><h2>Readings</h2>{{ range_buttons("/engineer/inventory/" ~ (d.key | urlencode), range, ranges) }}</div>
+  {% if not series %}<p class="muted">No readings recorded for this device.</p>{% endif %}
+  <div class="grid grid-2">
+  {% for subject, name, unit in series[:8] %}
+    <div><h3>{{ name.replace("_", " ") }}{% if unit %} ({{ unit }}){% endif %}{% if subject.startswith("port:") %} · port {{ subject.split(":")[-1] }}{% endif %}</h3>{{ chart(subject, name, range) }}</div>
+  {% endfor %}
+  </div>
+</section>
+<div class="grid grid-2">
+  <section class="card">
+    <h2>Findings</h2>
+    {% set findings = findings %}{% include "engineer/_findings_table.html" with context %}
+  </section>
+  <section class="card">
+    <h2>Events, last 7 days</h2>
+    {% if not events %}<p class="muted">None.</p>{% endif %}
+    {% for e in events %}<div class="timeline-item"><time>{{ e.at | shiptime("%d %b %H:%M:%S") }}</time><span>{{ e.message }}</span></div>{% endfor %}
+  </section>
+</div>
+{% endblock %}

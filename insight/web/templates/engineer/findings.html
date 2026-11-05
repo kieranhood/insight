@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Findings{% endblock %}
+{% block content %}
+{% include "engineer/_nav.html" %}
+<h1>Findings</h1>
+<div class="row" role="group" aria-label="Filter">
+  {% for s, label in [("open", "Open"), ("resolved", "Resolved"), ("all", "All")] %}<a class="btn btn-small{% if s == status %} btn-primary{% endif %}" href="?status={{ s }}">{{ label }}</a>{% endfor %}
+</div>
+<section class="card">{% include "engineer/_findings_table.html" with context %}</section>
+{% endblock %}

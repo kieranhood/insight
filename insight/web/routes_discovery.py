@@ -77,7 +77,7 @@ async def save_subnets(
 
 
 @router.post("/engineer/discovery/run")
-async def start_run(request: Request, user: User = Depends(require_engineer)) -> Response:  # noqa: B008
+async def start_run(request: Request, user: User = Depends(require_engineer)) -> Response:
     try:
         await runtime_of(request).start_discovery_run(user.username)
     except SweepError as exc:

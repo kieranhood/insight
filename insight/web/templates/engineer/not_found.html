@@ -1,0 +1,3 @@
+{% extends "base.html" %}
+{% block title %}Not found{% endblock %}
+{% block content %}{% include "engineer/_nav.html" %}<section class="card"><h1>Not available</h1><p>{{ what }}{% if what.endswith("device") or what.endswith("finding") or what.endswith("source") %} could not be found{% endif %}.</p></section>{% endblock %}

@@ -90,6 +90,17 @@ class Runtime:
                 self.scheduler.add(registry.build(source))
         self._update_expected_interval()
 
+    async def apply_source(self, source_id: str) -> None:
+        """Start, restart or stop collection after a source was added, changed or toggled."""
+        from insight.collection import registry
+
+        source = self.sources.get(source_id)
+        if source is None or not source.enabled:
+            await self.scheduler.remove(source_id, forget_state=source is None)
+        else:
+            await self.scheduler.replace(registry.build(source))
+        self._update_expected_interval()
+
     def _update_expected_interval(self) -> None:
         intervals = [a.interval_s for a in self.scheduler.adapters.values()]
         self.expected_cycle_interval = min(intervals) if intervals else 60.0

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ f.title }}{% endblock %}
+{% block content %}
+{% include "engineer/_nav.html" %}
+<h1>{{ f.title }}</h1>
+<div class="tags"><span class="tag">{{ f.severity.value }}</span><span class="tag">{{ f.confidence.value }}</span>{% if f.intermittent %}<span class="tag">intermittent</span>{% endif %}<span class="tag">{{ f.status }}</span>{% if f.guests_affected %}<span class="tag tag-guests">guests affected</span>{% endif %}</div>
+<div class="grid grid-2">
+  <section class="card">
+    <h2>Summary</h2>
+    <p>{{ f.summary }}</p>
+    {% if f.engineer_text %}<p class="muted">{{ f.engineer_text }}</p>{% endif %}
+    <dl class="facts">
+      <dt>Rule</dt><dd class="mono">{{ f.rule_id }}</dd>
+      {% if rule %}<dt>Rule logic</dt><dd>{{ rule.purpose }}</dd>{% endif %}
+      <dt>First detected</dt><dd>{{ f.first_detected_at | shiptime("%d %b %Y %H:%M:%S") }}</dd>
+      <dt>Last observed</dt><dd>{{ f.last_observed_at | shiptime("%d %b %Y %H:%M:%S") }}</dd>
+      {% if f.resolved_at %}<dt>Resolved</dt><dd>{{ f.resolved_at | shiptime("%d %b %Y %H:%M:%S") }}</dd>{% endif %}
+      <dt>Affected</dt><dd>{% for d in f.devices %}<a href="/engineer/inventory/{{ d | urlencode }}">{{ device_names.get(d, d) }}</a>{% if not loop.last %}, {% endif %}{% else %}none recorded{% endfor %}</dd>
+      <dt>Services</dt><dd>{% for s in f.services %}{{ {"internet": "Internet", "guest_wifi": "Guest Wi-Fi", "crew_wifi": "Crew Wi-Fi"}.get(s, s) }}{% if not loop.last %}, {% endif %}{% else %}none{% endfor %}</dd>
+    </dl>
+  </section>
+  <section class="card">
+    <h2>What crew see</h2>
+    <p>{{ f.crew_text }}</p>
+  </section>
+</div>
+<section class="card">
+  <h2>Evidence</h2>
+  <div class="table-wrap"><table class="data"><thead><tr><th>Observed</th><th>Source</th><th>Evidence</th></tr></thead><tbody>
+  {% for e in f.evidence %}<tr><td>{{ e.observed_at | shiptime("%d %b %H:%M:%S") }}</td><td>{{ source_names.get(e.source_id, e.source_id or "derived") }}</td><td>{{ e.description }}{% if e.data %}<br><span class="mono muted">{{ e.data | tojson }}</span>{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+<div class="grid grid-2">
+  <section class="card"><h2>Likely causes</h2><ul>{% for c in f.likely_causes %}<li>{{ c }}</li>{% endfor %}</ul></section>
+  <section class="card"><h2>Suggested checks</h2><ol>{% for s in f.next_steps %}<li>{{ s }}</li>{% endfor %}</ol></section>
+</div>
+<p><a href="/engineer/timeline?hours=24">See the timeline around this finding</a></p>
+{% endblock %}

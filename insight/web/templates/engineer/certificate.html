@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Certificate{% endblock %}
 {% block content %}
+{% include "engineer/_nav.html" %}
 <h1>HTTPS certificate</h1>
 {% if error %}<p class="alert alert-critical" role="alert">{{ error }}</p>{% endif %}
 {% if message %}<p class="alert alert-healthy" role="status">{{ message }}</p>{% endif %}
