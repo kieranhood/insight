@@ -58,9 +58,14 @@ async def icmp_ping(addresses: list[str], count: int) -> dict[str, PingResult]:
             addresses, count=count, interval=0.2, timeout=1, privileged=True
         )
     except SocketPermissionError:
-        hosts = await async_multiping(
-            addresses, count=count, interval=0.2, timeout=1, privileged=False
-        )
+        try:
+            hosts = await async_multiping(
+                addresses, count=count, interval=0.2, timeout=1, privileged=False
+            )
+        except SocketPermissionError as exc:
+            raise IcmpNotPermitted(
+                "the operating system does not allow Insight to send pings (the container needs NET_RAW)"
+            ) from exc
     return {
         h.address: PingResult(
             h.address, h.is_alive, h.avg_rtt if h.is_alive else None, h.packet_loss * 100.0

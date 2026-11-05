@@ -182,3 +182,17 @@ async def test_real_icmp_to_loopback() -> None:
     except IcmpNotPermitted:
         pytest.skip("this OS does not allow ICMP sockets for the test user")
     assert results["127.0.0.1"].ok
+
+
+async def test_icmp_denied_becomes_clear_monitoring_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import icmplib
+    from icmplib.exceptions import SocketPermissionError
+
+    async def denied(*args: object, **kwargs: object) -> None:
+        raise SocketPermissionError(False)
+
+    monkeypatch.setattr(icmplib, "async_multiping", denied)
+    with pytest.raises(IcmpNotPermitted, match="NET_RAW"):
+        await icmp_ping(["127.0.0.1"], 1)
