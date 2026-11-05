@@ -90,11 +90,11 @@
 
 ## 13. History and retention
 
-- [ ] 13.1 Implement metric history queries by series and time range, returning only the requested range. Verify a test that a 24-hour query returns only that range.
-- [ ] 13.2 Implement the event timeline with filters for time, system, device, service and event type. Verify filter tests for each dimension.
-- [ ] 13.3 Implement the nightly job that builds daily rollups, enforces the 30-day detail and 365-day summary retention (both configurable) and runs incremental vacuuming. Verify a test that ages out data and keeps its rollups.
+- [x] 13.1 Implement metric history queries by series and time range, returning only the requested range. Verify a test that a 24-hour query returns only that range.
+- [x] 13.2 Implement the event timeline with filters for time, system, device, service and event type. Verify filter tests for each dimension.
+- [x] 13.3 Implement the nightly job that builds daily rollups, enforces the 30-day detail and 365-day summary retention (both configurable) and runs incremental vacuuming. Verify a test that ages out data and keeps its rollups.
 - [ ] 13.4 Implement free-space monitoring with a low-disk finding and oldest-first pruning. Verify a test that simulates low space and checks that pruning happens and the finding is raised.
-- [ ] 13.5 Represent gaps in history, both while Insight was stopped and during monitoring failures. Verify a test that a two-hour stop appears as a gap in a chart query.
+- [x] 13.5 Represent gaps in history, both while Insight was stopped and during monitoring failures. Verify a test that a two-hour stop appears as a gap in a chart query.
 
 ## 14. Diagnostic engine
 

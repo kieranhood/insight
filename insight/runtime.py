@@ -15,6 +15,7 @@ from insight.auth.sessions import SessionStore
 from insight.collection.scheduler import CollectionResult, Scheduler
 from insight.config_store import ConfigStore
 from insight.discovery import DiscoveryStore
+from insight.history import History
 from insight.inventory import Inventory
 from insight.model import Event
 from insight.settings import Settings
@@ -45,6 +46,8 @@ class Runtime:
         self.sources = SourceStore(self.db, self.writer, self.vault)
         self.state = StateStore()
         self.inventory = Inventory(self.db, self.writer)
+        self.history = History(self.db, self.writer, self.config)
+        self.disk_status: dict[str, Any] = {}
         self.discovery = DiscoveryStore(self.db, self.writer, self.inventory)
         self.discovery_run: Any = None
         self._listeners: list[asyncio.BaseTransport] = []
@@ -86,6 +89,12 @@ class Runtime:
             result.events.extend(
                 await asyncio.to_thread(self.discovery.observe_snapshot, result.snapshot)
             )
+        for event in result.events:
+            scope = f"source:{result.source_id}"
+            if event.kind == "monitoring_failure":
+                await asyncio.to_thread(self.history.open_gap, scope, event.observed_at)
+            elif event.kind == "monitoring_recovered":
+                await asyncio.to_thread(self.history.close_gap, scope, event.observed_at)
         if result.events:
             status = self.state.sources.get(result.source_id)
             systems = (status.kind,) if status else ()
@@ -127,6 +136,8 @@ class Runtime:
         """Start long-running background services (writer flushing, collection, probes...)."""
         flush = asyncio.create_task(self.writer.run_periodic_flush(), name="writer-flush")
         self._tasks.append(flush)
+        await asyncio.to_thread(self.history.record_downtime_since_last_heartbeat)
+        self._tasks.append(asyncio.create_task(self._housekeeping(), name="housekeeping"))
         if not self.scheduler.adapters:
             self.load_sources()
         self._update_expected_interval()
@@ -137,6 +148,26 @@ class Runtime:
             from insight.discovery.listeners import start_listeners
 
             self._listeners = await start_listeners(self.on_announcement)
+
+    async def _housekeeping(self) -> None:
+        """Heartbeat (for downtime gaps), disk protection every 10 minutes, retention nightly."""
+        last_nightly = 0.0
+        last_disk = 0.0
+        loop = asyncio.get_running_loop()
+        while True:
+            try:
+                await asyncio.to_thread(self.history.heartbeat)
+                if loop.time() - last_disk >= 600:
+                    self.disk_status = await asyncio.to_thread(
+                        self.history.protect_disk, self.settings.data_dir
+                    )
+                    last_disk = loop.time()
+                if loop.time() - last_nightly >= 86400:
+                    await asyncio.to_thread(self.history.nightly)
+                    last_nightly = loop.time()
+            except Exception:
+                log.exception("housekeeping failed")
+            await asyncio.sleep(60)
 
     def on_announcement(self, announcement: Any) -> None:
         event = self.discovery.observe_announcement(

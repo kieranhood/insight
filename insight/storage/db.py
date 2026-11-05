@@ -50,6 +50,9 @@ class Database:
             if current == SCHEMA_VERSION:
                 return None
             backup = self._backup(conn, current) if existed else None
+            if current == 0:
+                # Must be set before the first table exists; lets retention reclaim space.
+                conn.execute("PRAGMA auto_vacuum=INCREMENTAL")
             for version in range(current, SCHEMA_VERSION):
                 log.info("applying schema migration v%d -> v%d", version, version + 1)
                 conn.executescript(
