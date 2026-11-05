@@ -7,19 +7,32 @@ Defines what Insight reads from the yacht's UniFi switches (switching only; this
 ## ADDED Requirements
 
 ### Requirement: Reads switches through the UniFi Network controller
-The UniFi integration SHALL read switch information from the UniFi Network controller on board, using a read-only API key or account. It SHALL NOT depend on Ubiquiti's cloud services.
+The UniFi integration SHALL read switch information from the UniFi Network controller on board, using an API key or a View Only account. Because the controller cannot issue read-only API keys, Insight SHALL itself restrict every request to read operations. It SHALL NOT depend on Ubiquiti's cloud services.
 
 #### Scenario: Controller configured
 - **WHEN** an engineer adds a working UniFi Network controller source
 - **THEN** Insight collects the switches it manages over the local network
 
-### Requirement: Falls back to SNMP
-Where no UniFi Network controller is reachable or configured, Insight SHALL support reading the switches directly over SNMP. Data the controller provides but SNMP does not SHALL be shown as not available.
+### Requirement: Supports SNMP alongside or instead of the controller
+Insight SHALL support reading the switches directly over SNMP, either alongside the controller (for port counters) or instead of it where no controller is reachable or configured. Data neither source provides SHALL be shown as not available.
 
 #### Scenario: Controller not running
 - **GIVEN** the switches are configured as SNMP sources and no controller source exists
 - **WHEN** Insight collects from them
 - **THEN** switch availability, port state and port traffic are collected over SNMP
+
+### Requirement: Classifies controller data by interface
+Data from the controller's official Network API SHALL be classed as reliable. Data available only from the controller's older, undocumented API SHALL be classed as optional: per-port PoE power, PoE budget, LLDP neighbours, port counters, uplink port and client port. On controllers without the official API (Network 8.x and earlier), all controller data SHALL be classed as optional.
+
+#### Scenario: Older API stops responding
+- **GIVEN** a controller that provides both the official and the older API
+- **WHEN** the older API returns data Insight cannot interpret
+- **THEN** switch and port up/down data from the official API continues to be collected, and PoE power and neighbour data are shown as not available
+
+#### Scenario: Controller without the official API
+- **GIVEN** a controller running Network 8.x
+- **WHEN** an engineer views the source
+- **THEN** Insight shows the source as optional
 
 ### Requirement: Reports switch details
 The UniFi integration SHALL report each switch's name, model, IP address, MAC address, firmware version, uptime and online state as reported by its source.
@@ -36,14 +49,19 @@ The UniFi integration SHALL report, for each switch port: link up or down, negot
 - **THEN** Insight records the change as an event against that switch and port
 
 ### Requirement: Reports PoE
-The UniFi integration SHALL report, for each PoE-capable port, whether PoE is enabled and the power being delivered. It SHALL also report each switch's total PoE budget and usage, where available.
+The UniFi integration SHALL report, for each PoE-capable port, whether PoE is enabled. Where available, it SHALL also report the power being delivered and each switch's total PoE budget and usage.
 
 #### Scenario: PoE power drops to zero
 - **WHEN** a port that was supplying PoE power reports zero power
 - **THEN** Insight records the change as evidence, with the switch, port and time
 
 ### Requirement: Reports what is attached to each port
-The UniFi integration SHALL report the neighbouring device on each port when the source identifies one (for example by LLDP), including its name and MAC address. Insight SHALL use this to link switch ports to inventory devices from other vendors.
+The UniFi integration SHALL report the neighbouring device on each port when a source identifies one (for example by LLDP), including its name and MAC address. An engineer SHALL be able to record an attachment by hand where no source reports one. Insight SHALL use both to link switch ports to inventory devices from other vendors.
+
+#### Scenario: Attachment recorded by an engineer
+- **GIVEN** no source reports a neighbour on port 7 of a UniFi switch
+- **WHEN** an engineer records that a Ruckus access point is attached to port 7
+- **THEN** Insight links that access point to that switch and port, and marks the link as recorded by an engineer
 
 #### Scenario: Ruckus access point on a UniFi port
 - **GIVEN** a Ruckus access point is plugged into port 12 of a UniFi switch

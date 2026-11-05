@@ -52,7 +52,7 @@ Insight, by 50N Systems, closes that gap. It brings data from those systems toge
 ## Impact
 
 - **Code:** a new application in an empty repository: backend service, adapters, diagnostic rules, web UI, and Docker packaging.
-- **Dependencies:** a Python runtime (proposed in design.md), a Ruckus Unleashed client library, an SNMP library, an embedded SQLite database, and Docker and Docker Compose on the host.
+- **Dependencies:** a Python runtime (proposed in design.md), a Ruckus Unleashed client library (which brings aiohttp), an SNMP library, a gRPC library, an embedded SQLite database, and Docker and Docker Compose on the host.
 - **On-board systems:** read-only API or SNMP credentials are needed for the Peplink router, the UniFi Network controller and Ruckus Unleashed. Ruckus may also need syslog forwarding to Insight. Insight needs network access to the management addresses of those devices and of the Starlink dish.
 - **Hardware:** one fanless mini-PC with a TPM 2.0 chip and Secure Boot support, owned by 50N, in the comms rack, powered from the UPS, running Linux with Docker and NTP.
 - **Commercial:** client agreements need licence terms covering 50N's ownership of the software and appliance, and prohibiting copying and reverse engineering. This is outside the software, and the terms need legal review.

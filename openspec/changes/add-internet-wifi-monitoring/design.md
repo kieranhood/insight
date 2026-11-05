@@ -120,12 +120,15 @@ Pages are rendered on the server with Jinja2. htmx handles partial updates, and 
 
 | Adapter | Interface | Class | Default poll |
 |---|---|---|---|
-| Peplink | Local router API (documented); SNMP fallback | reliable | 30 s |
-| UniFi | UniFi Network controller local API (API key); SNMP to switches as fallback | reliable (see Open Questions) | 60 s |
+| Peplink | Documented local router API via a read-only API client: WAN status and health pass/fail, cellular signal, usage, client list. Link in use derived from status and priority. SIM/APN secrets stripped on receipt. After an authentication failure, no further attempts until credentials change (the router locks out after 5 failures) | reliable | 30 s |
+| Peplink extras | Undocumented endpoints for model, serial, uptime and WAN latency | optional | 30 s |
+| UniFi | Official Network API (API key): switch details and state, port up/down and speed, PoE on/off, client list. Insight issues only GET requests, since the controller has no read-only keys | reliable | 60 s |
+| UniFi classic | Older controller API (`stat/device`, `stat/sta`): PoE watts and budget, LLDP neighbours, port counters, uplink port, client port. On Network 8.x it is the only controller API | optional | 60 s |
+| UniFi SNMP | IF-MIB on the switches for counters and state, alongside or instead of the controller; LLDP-MIB where the model supports it | reliable | 60 s |
 | Ruckus SNMP | SNMP on the Unleashed master AP | reliable | 60 s |
-| Ruckus syslog | UDP receiver; regex patterns for join/leave/reboot | reliable | push |
-| Ruckus web | `aioruckus` against the Unleashed web interface | optional | 120 s |
-| Starlink dish | gRPC status interface at `192.168.100.1:9200` | optional | 30 s |
+| Ruckus syslog | UDP receiver on port 514 (Unleashed cannot use another port); regex patterns for join/leave/reboot | reliable | push |
+| Ruckus web | `aioruckus` against the Unleashed management IP, wrapped in a read-only allow-list of its query methods, with `redact_secrets` on so passphrases are never fetched | optional | 120 s |
+| Starlink dish | gRPC status interface at a configurable address (default `192.168.100.1:9200`; Peplink 8.5+ can proxy it at its LAN address on port 9200 + WAN ID). `get_status` every 30 s and `get_history` every 5 min for outages, through a code-enforced read-only request allow-list | optional | 30 s |
 | Probes | ICMP to each device; ICMP and HTTPS to internet targets; DNS via system and public resolvers | reliable | 30 s device and internet, 60 s DNS, 120 s HTTP |
 
 Every adapter call has a timeout and runs in its own task, so one slow source cannot delay the others (`data-collection`). Polling intervals get a small random jitter so that all the sources aren't polled at the same moment.
@@ -159,7 +162,7 @@ Insight ships in readable Python inside a Docker image, so the protection comes 
 - **SSH.** Key-only, using 50N keys. `PasswordAuthentication no`, `PermitRootLogin no`. SSH is reachable only through 50N's existing remote-access route.
 - **Disk encryption.** LUKS2 full-disk encryption, with the key enrolled in the TPM 2.0 (`systemd-cryptenroll`) and bound to PCR 7 (the Secure Boot policy). This allows unattended boot after power cuts and survives most firmware updates. The recovery key goes into 50N's password manager, with one per appliance.
 - **Boot lock.** Secure Boot is on, the firmware admin password is held by 50N, USB and network boot are disabled, and the boot order is locked to the internal disk.
-- **Repeatable provisioning.** A single provisioning playbook (Ansible) builds every appliance the same way, including Docker, NTP from the Peplink, unattended security upgrades, the SSH policy and encryption enrolment. That keeps the hardening identical on every box and auditable.
+- **Repeatable provisioning.** A single provisioning playbook (Ansible) builds every appliance the same way, including Docker, NTP (from the Peplink once its NTP server is enabled, which it is not by default, or another on-board time source), unattended security upgrades, the SSH policy and encryption enrolment. That keeps the hardening identical on every box and auditable.
 - **Licence notice.** A proprietary `LICENSE` in the repository; a copyright and licence notice on the sign-in and about pages; and an OCI image label. The contract terms are the legal backstop.
 - **Alternatives:**
   - Shipping the software for the client to install was rejected because it hands over the code.
@@ -174,8 +177,10 @@ Recorded fixtures drive adapter tests. A **simulator source**, enabled by a sett
 ## Risks / Trade-offs
 
 - **[Unofficial interfaces change after firmware updates]** → They are classed as optional, versions are pinned in fixtures, and failures surface as monitoring failures plus "insufficient information". Each optional adapter has a parser test suite that is updated when firmware changes.
-- **[The Starlink dish address may not be reachable from the LAN]** → The Peplink router may need a static route to `192.168.100.0/24` via the Starlink WAN. This is included in the install checklist. Without it, Starlink falls back to the Peplink and probe data only.
+- **[The Starlink dish is unreachable from the LAN, or only while Starlink is healthy]** → A static route does not work on Peplink WAN ports. The install checklist covers the Peplink's Starlink WAN pairing (or Management IP on older firmware) **plus an enforced outbound-policy rule** sending `192.168.100.1` to the Starlink WAN. Without the enforced rule, the Peplink stops routing to the dish exactly when Starlink fails its health check, which would look like a dish outage. Alternatively, use the Peplink's dish proxy address. Without either, Starlink falls back to the Peplink and probe data only.
 - **[The UniFi Network controller is off or absent]** → SNMP fallback to the switches. LLDP neighbour data over SNMP may be weaker, which reduces topology accuracy. Manual overrides mitigate this.
+- **[PoE power and LLDP come only from an unofficial UniFi API]** → Classed optional. Engineers can record AP-to-port attachments by hand. The "AP lost PoE" finding is confirmed only while PoE data is current, and probable otherwise (`diagnostics`).
+- **[The Peplink returns secrets and allows some command endpoints even to a read-only client]** → The adapter calls only a fixed list of read endpoints and strips SIM identifiers and APN passwords before anything is stored.
 - **[The Unleashed SNMP gives master-level totals only]** → Per-AP identification comes from probes, syslog and UniFi port neighbours. Wi-Fi congestion findings are only possible with the optional source.
 - **[Probes see only the WAN link currently in use]** → Per-link health comes from the Peplink health checks, and probe results are labelled with the link in use (`connectivity-probes`).
 - **[A single host is a single point of failure, and Insight cannot report its own death]** → Accepted for this change. A heartbeat checked by the Peplink or by 50N is a future change.
@@ -199,7 +204,7 @@ This is a greenfield build, so there is no existing data to migrate.
 3. Create the engineer account.
 4. Add the sources.
 5. Tag locations and map services.
-6. Add the Peplink static route for the dish if needed.
+6. Set up dish access on the Peplink: Starlink WAN pairing plus an enforced outbound-policy rule for `192.168.100.1`, or the dish proxy.
 7. Point Unleashed syslog at Insight.
 
 **Upgrade:**
@@ -210,7 +215,7 @@ This is a greenfield build, so there is no existing data to migrate.
 
 ## Open Questions
 
-- **UniFi controller:** where it runs on board (Cloud Key or self-hosted), and whether the official local Network API exposes port PoE and LLDP neighbours. If it does not, the adapter uses the controller's long-standing classic API for those fields. That data would be classed as optional, with SNMP as the reliable base for port state. Task 1 resolves this; the specs are unaffected.
-- **Unleashed syslog:** whether Unleashed can send syslog to a non-standard port. If it can, Insight could avoid binding port 514.
+- **UniFi controller:** where it runs on board (Cloud Key or self-hosted) and its Network version. This decides whether the official API is available; both paths are designed (D9). To be confirmed at commissioning.
+- **Starlink dish:** a captured status response from the real dish, and whether outage timestamps use the dish's clock. To be confirmed at commissioning.
 - **Registry:** which registry 50N uses to publish images (GHCR assumed).
 - **Default thresholds:** latency, loss, obstruction fraction and channel utilisation. Initial values come from vendor guidance and are tuned on board.

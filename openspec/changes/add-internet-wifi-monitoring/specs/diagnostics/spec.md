@@ -122,8 +122,14 @@ Insight SHALL include rules for at least these problems:
 - **THEN** Insight reports that the internet is working but Wi-Fi may be unavailable in the affected area
 
 #### Scenario: Access point lost PoE power
-- **WHEN** a UniFi switch port linked to a Ruckus access point reports zero PoE power or link down, and the access point becomes unreachable
+- **GIVEN** current PoE power data for the switch port linked to a Ruckus access point
+- **WHEN** that port reports zero PoE power or link down, and the access point becomes unreachable
 - **THEN** Insight reports, as confirmed, that the access point has lost power or connection from its switch, naming its location for crew and the switch and port for engineers
+
+#### Scenario: Access point lost connection without PoE data
+- **GIVEN** PoE power data is not available, and the access point's port is known from LLDP or an engineer's record
+- **WHEN** that port reports link down and the access point becomes unreachable
+- **THEN** Insight reports, as probable, that the access point has lost power or connection from its switch
 
 #### Scenario: Starlink obstruction without dish data
 - **GIVEN** the optional dish source is unavailable

@@ -15,7 +15,7 @@ An engineer SHALL be able to mark which Peplink WAN link is the Starlink connect
 - **THEN** Insight records the Starlink connection as unhealthy, with the router's health check as evidence
 
 ### Requirement: Checks the dish is reachable
-Insight SHALL check whether the Starlink dish's local management address is reachable from the yacht's network.
+Insight SHALL check whether the Starlink dish's local management address is reachable from the yacht's network. The address SHALL be configurable, defaulting to `192.168.100.1` port 9200, so that a router-provided proxy address can be used instead.
 
 #### Scenario: Dish unreachable
 - **WHEN** the dish's local address stops responding while the Starlink WAN link is also down
@@ -32,6 +32,18 @@ When an engineer enables it, Insight SHALL read the dish's local status interfac
 #### Scenario: Dish reports an alert
 - **WHEN** the dish reports an active alert such as thermal throttling
 - **THEN** Insight records the alert as an event with its time
+
+#### Scenario: Dish reached through the router's proxy
+- **GIVEN** an engineer has set the dish address to the Peplink's LAN address and dish proxy port
+- **WHEN** Insight collects dish status
+- **THEN** it reads the dish through that address
+
+### Requirement: Sends only read-only requests to the dish
+Insight SHALL send the dish only requests from a fixed list of read-only requests. It SHALL never send requests that change the dish's state, such as stow, reboot or configuration changes.
+
+#### Scenario: Adapter limited to the allow-list
+- **WHEN** any request is about to be sent to the dish
+- **THEN** it is refused unless it is on the read-only list
 
 ### Requirement: Starlink assessment survives loss of the optional source
 When the optional dish source is unavailable, disabled or returns data Insight cannot interpret, Insight SHALL still assess the Starlink connection from the Peplink link and probe data. Findings that need dish detail SHALL become "insufficient information".
