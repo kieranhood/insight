@@ -68,8 +68,8 @@
 
 ## 10. Starlink adapter
 
-- [ ] 10.1 Implement Starlink link attribution, so an engineer can mark the Peplink WAN that is Starlink, and dish reachability checks. Verify a test that the marked link's health check results are attributed to Starlink.
-- [ ] 10.2 Implement the optional dish gRPC adapter for online state, obstruction, outages, latency, throughput, alerts, stowed state, versions and uptime. Verify parser tests against the task 1.4 sample, plus a test that a malformed response marks only the optional source as failed.
+- [x] 10.1 Implement Starlink link attribution, so an engineer can mark the Peplink WAN that is Starlink, and dish reachability checks. Verify a test that the marked link's health check results are attributed to Starlink.
+- [x] 10.2 Implement the optional dish gRPC adapter for online state, obstruction, outages, latency, throughput, alerts, stowed state, versions and uptime. Verify parser tests against the task 1.4 sample, plus a test that a malformed response marks only the optional source as failed.
 
 ## 11. Connectivity probes
 

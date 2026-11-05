@@ -17,6 +17,7 @@ dependencies = [
     "pysnmp>=7.1",
     "aioruckus>=0.42",
     "grpcio>=1.66",
+    "grpcio-reflection>=1.66",
     "dnspython>=2.7",
     "icmplib>=3.0",
 ]
