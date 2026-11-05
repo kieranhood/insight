@@ -19,6 +19,7 @@ from insight.diagnostics.engine import Engine
 from insight.diagnostics.rules import all_rules
 from insight.diagnostics.store import FindingStore
 from insight.discovery import DiscoveryStore
+from insight.health import HealthReport, StatusTracker, compute
 from insight.history import History
 from insight.inventory import Inventory
 from insight.model import Event
@@ -55,6 +56,8 @@ class Runtime:
         self.engine = Engine(self.db, self.writer, all_rules())
         self.findings = FindingStore(self.db)
         self.evaluation_interval = 15.0
+        self.status_tracker = StatusTracker(self.config.get("last_statuses") or {})
+        self.last_report: HealthReport | None = None
         self.discovery = DiscoveryStore(self.db, self.writer, self.inventory)
         self.discovery_run: Any = None
         self._listeners: list[asyncio.BaseTransport] = []
@@ -176,9 +179,19 @@ class Runtime:
             disk=dict(self.disk_status),
         )
 
+    def health(self, now: datetime | None = None) -> HealthReport:
+        return compute(self.eval_context(now), self.findings.open())
+
     def evaluate(self, now: datetime | None = None) -> list[Event]:
-        """One diagnostic cycle. Returns the finding events it produced (already recorded)."""
-        events = self.engine.evaluate(self.eval_context(now))
+        """One diagnostic cycle. Returns the finding and status events it produced (already recorded)."""
+        ctx = self.eval_context(now)
+        events = self.engine.evaluate(ctx)
+        report = compute(ctx, self.findings.open())
+        self.last_report = report
+        changes = self.status_tracker.changes(report, ctx.now)
+        if changes:
+            self.config.set("last_statuses", self.status_tracker.last)
+        events.extend(changes)
         if events:
             self.writer.add_events(events, systems=("insight",))
             self.recent_events.extend(events)

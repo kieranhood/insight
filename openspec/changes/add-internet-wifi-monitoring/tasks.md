@@ -116,8 +116,8 @@
 
 ## 16. Health status
 
-- [ ] 16.1 Implement system, service and overall status calculation with HEALTHY, DEGRADED, CRITICAL and UNKNOWN, including UNKNOWN for stale data and unmapped services. Verify tests for each spec scenario (failover gives DEGRADED, Wi-Fi monitoring lost gives UNKNOWN, worst-of for overall).
-- [ ] 16.2 Attach the responsible findings and last-updated time to each status, and record status changes in the timeline. Verify a test that a DEGRADED service lists its findings and that a status change creates an event.
+- [x] 16.1 Implement system, service and overall status calculation with HEALTHY, DEGRADED, CRITICAL and UNKNOWN, including UNKNOWN for stale data and unmapped services. Verify tests for each spec scenario (failover gives DEGRADED, Wi-Fi monitoring lost gives UNKNOWN, worst-of for overall).
+- [x] 16.2 Attach the responsible findings and last-updated time to each status, and record status changes in the timeline. Verify a test that a DEGRADED service lists its findings and that a status change creates an event.
 
 ## 17. Crew dashboard
 
