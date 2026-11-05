@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Discovery{% endblock %}
+{% block content %}
+{% include "engineer/_nav.html" %}
+<h1>Discovery</h1>
+<p class="muted">Discovery suggests equipment. Nothing enters the inventory until you accept it, and Insight never signs in to anything it finds. See the discovery guide before running a scan.</p>
+{% if error %}<p class="alert alert-critical" role="alert">{{ error }}</p>{% endif %}
+{% if message %}<p class="alert alert-healthy" role="status">{{ message }}</p>{% endif %}
+
+<section class="card">
+  <h2>Scan subnets</h2>
+  <form method="post" action="/engineer/discovery/subnets" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Subnets to scan (one per line, e.g. 10.10.0.0/24)
+      <textarea name="selected" rows="3">{{ selected | join("\n") }}</textarea></label>
+    {% if suggested %}<p class="muted">The router reports these LAN subnets: {{ suggested | join(", ") }}. None are selected until you add them.</p>{% endif %}
+    <label>Never scan (always wins; add guest, AV and bridge networks)
+      <textarea name="excluded" rows="3">{{ excluded | join("\n") }}</textarea></label>
+    <button class="btn" type="submit">Save subnets</button>
+  </form>
+  {% if run and run.running %}
+  <p role="status">Scanning: {{ run.progress }} (started by {{ run.started_by }}).</p>
+  <form method="post" action="/engineer/discovery/cancel"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn" type="submit">Cancel scan</button></form>
+  {% else %}
+  {% if run %}<p class="muted">Last scan: {{ run.progress }}, {{ run.found | length }} answered{% if run.cancelled %} (cancelled){% endif %}.</p>{% endif %}
+  <form method="post" action="/engineer/discovery/run"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn btn-primary" type="submit" {% if not selected %}disabled{% endif %}>Start scan</button></form>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Found, not yet reviewed <span class="count">{{ new | length }}</span></h2>
+  {% if not new %}<p class="muted">Nothing new.</p>{% endif %}
+  <div class="table-wrap"><table class="data">
+    <thead><tr><th>Device</th><th>Address</th><th>Identified as</th><th>How found</th><th>Evidence</th><th></th></tr></thead>
+    <tbody>
+    {% for d in new %}
+    <tr>
+      <td>{{ d.name or "—" }}</td>
+      <td class="mono">{{ d.ip or "" }}<br>{{ d.mac or "" }}</td>
+      <td>{{ d.label }}</td>
+      <td>{{ d.how | join(", ") }}</td>
+      <td>{{ d.evidence | join("; ") or (d.observations.open_ports | join(", ") if d.observations.open_ports else "") }}</td>
+      <td class="actions">
+        {% if setups[d.key] %}<a class="btn btn-small" href="{{ setups[d.key] }}">Set up as source</a>{% endif %}
+        <form method="post" action="/engineer/discovery/{{ d.key | urlencode }}/accept" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <input name="name" placeholder="Name" value="{{ d.name or '' }}" required aria-label="Name">
+          <select name="category" aria-label="Category">{% for c in categories %}<option value="{{ c.value }}">{{ c.value.replace('_', ' ') }}</option>{% endfor %}</select>
+          <button class="btn btn-small" type="submit" {% if not d.ip %}disabled title="No IP address known"{% endif %}>Accept</button>
+        </form>
+        <form method="post" action="/engineer/discovery/{{ d.key | urlencode }}/dismiss" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn btn-small btn-quiet" type="submit">Dismiss</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</section>
+
+{% if dismissed %}
+<section class="card">
+  <h2>Dismissed <span class="count">{{ dismissed | length }}</span></h2>
+  <ul class="plain">{% for d in dismissed %}<li>{{ d.display }} <span class="mono muted">{{ d.mac or d.ip }}</span>
+    <form method="post" action="/engineer/discovery/{{ d.key | urlencode }}/restore" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn btn-small btn-quiet" type="submit">Restore</button></form></li>{% endfor %}</ul>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,29 @@
+{
+  "_comment": "Discovery signatures (design D10). Sources: docs/integrations/discovery.md. Strength: strong or medium. A device is 'likely' with one strong or two medium matches, 'possible' with one medium match.",
+  "types": {
+    "peplink": {"label": "Peplink router", "source_kind": "peplink", "address_template": "https://{ip}"},
+    "unifi": {"label": "UniFi Network controller", "source_kind": "unifi", "address_template": "https://{ip}"},
+    "ruckus-master": {"label": "Ruckus Unleashed master access point", "source_kind": "ruckus-snmp", "address_template": "{ip}"},
+    "ruckus": {"label": "Ruckus access point", "source_kind": null, "address_template": null},
+    "starlink": {"label": "Starlink dish", "source_kind": "starlink", "address_template": "{ip}:9200"}
+  },
+  "signatures": [
+    {"type": "peplink", "id": "P1", "strength": "medium", "what": "Peplink MAC address prefix", "oui_vendor": "Peplink"},
+    {"type": "peplink", "id": "P2", "strength": "strong", "what": "Peplink default certificate", "tls_subject_contains": "captive-portal.peplink.com"},
+    {"type": "peplink", "id": "P3", "strength": "strong", "what": "Peplink web admin page", "http_title_contains": "Web Admin", "http_body_contains": "init_company_name"},
+    {"type": "peplink", "id": "P5", "strength": "medium", "what": "Peplink SSH port 8822 open", "port_open": 8822},
+
+    {"type": "unifi", "id": "U1", "strength": "medium", "what": "Ubiquiti MAC address prefix", "oui_vendor": "Ubiquiti"},
+    {"type": "unifi", "id": "U2", "strength": "medium", "what": "UniFi device inform port 8080 open", "port_open": 8080},
+    {"type": "unifi", "id": "U3", "strength": "strong", "what": "UniFi default certificate", "tls_subject_contains": "CN=UniFi"},
+    {"type": "unifi", "id": "U5", "strength": "medium", "what": "UniFi page title", "http_title_contains_any": ["UniFi OS", "UniFi Network", "UniFi Controller"]},
+
+    {"type": "ruckus-master", "id": "R2", "strength": "strong", "what": "Unleashed master login redirect", "http_location_endswith": "/admin/login.jsp", "http_location_same_host": true},
+    {"type": "ruckus-master", "id": "R1", "strength": "medium", "what": "Ruckus MAC address prefix", "oui_vendor": "Ruckus"},
+    {"type": "ruckus-master", "id": "R3", "strength": "medium", "what": "Unleashed default certificate", "tls_subject_contains": "unleashed.ruckuswireless.com"},
+    {"type": "ruckus", "id": "R1b", "strength": "strong", "what": "Ruckus MAC address prefix", "oui_vendor": "Ruckus"},
+
+    {"type": "starlink", "id": "S1", "strength": "medium", "what": "Starlink dish fixed address", "ip_equals": "192.168.100.1"},
+    {"type": "starlink", "id": "S2", "strength": "medium", "what": "Starlink status port 9200 open", "port_open": 9200}
+  ]
+}

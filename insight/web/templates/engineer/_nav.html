@@ -1,0 +1,6 @@
+<nav class="subnav" aria-label="Engineer">
+  {% set items = [("/engineer", "Overview"), ("/engineer/findings", "Findings"), ("/engineer/inventory", "Inventory"), ("/engineer/wan", "WAN links"), ("/engineer/timeline", "Timeline"), ("/engineer/sources", "Sources"), ("/engineer/discovery", "Discovery"), ("/engineer/settings", "Settings")] %}
+  {% for href, label in items %}
+  <a href="{{ href }}" {% if (href == "/engineer" and path == "/engineer") or (href != "/engineer" and path.startswith(href)) %}aria-current="page"{% endif %}>{{ label }}</a>
+  {% endfor %}
+</nav>

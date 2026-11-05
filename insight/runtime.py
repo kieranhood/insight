@@ -7,12 +7,14 @@ import logging
 from collections import deque
 from collections.abc import Callable
 from datetime import datetime
+from typing import Any
 
 from insight.auth.accounts import AccountStore
 from insight.auth.credentials import CredentialVault
 from insight.auth.sessions import SessionStore
 from insight.collection.scheduler import CollectionResult, Scheduler
 from insight.config_store import ConfigStore
+from insight.discovery import DiscoveryStore
 from insight.inventory import Inventory
 from insight.model import Event
 from insight.settings import Settings
@@ -43,6 +45,9 @@ class Runtime:
         self.sources = SourceStore(self.db, self.writer, self.vault)
         self.state = StateStore()
         self.inventory = Inventory(self.db, self.writer)
+        self.discovery = DiscoveryStore(self.db, self.writer, self.inventory)
+        self.discovery_run: Any = None
+        self._listeners: list[asyncio.BaseTransport] = []
         self.scheduler = Scheduler(self.state, hooks=[self._on_collection])
         self.reload_tls: Callable[[], None] = lambda: None
         self._tasks: list[asyncio.Task[None]] = []
@@ -78,6 +83,9 @@ class Runtime:
         if result.snapshot is not None:
             self.writer.add_metrics(result.snapshot.metrics)
             result.events.extend(await asyncio.to_thread(self.inventory.sync, result.snapshot))
+            result.events.extend(
+                await asyncio.to_thread(self.discovery.observe_snapshot, result.snapshot)
+            )
         if result.events:
             status = self.state.sources.get(result.source_id)
             systems = (status.kind,) if status else ()
@@ -125,8 +133,94 @@ class Runtime:
         self.scheduler.start()
         if self.settings.syslog_port:
             await self.start_syslog()
+        if self.settings.listen_announcements:
+            from insight.discovery.listeners import start_listeners
+
+            self._listeners = await start_listeners(self.on_announcement)
+
+    def on_announcement(self, announcement: Any) -> None:
+        event = self.discovery.observe_announcement(
+            ip=announcement.ip,
+            name=announcement.name,
+            services=announcement.services,
+            server=announcement.server,
+        )
+        if event is not None:
+            self.on_internal_event(event)
+
+    def on_internal_event(self, event: Event) -> None:
+        self.writer.add_events([event], systems=("insight",))
+        self.recent_events.append(event)
+
+    async def start_discovery_run(self, started_by: str) -> Any:
+        """Start an engineer-requested active sweep of the selected subnets."""
+        from insight.discovery import DISCOVERY_SOURCE_ID
+        from insight.discovery.sweep import SweepRun, plan, sweep
+        from insight.model import Reliability
+
+        if self.discovery_run is not None and self.discovery_run.running:
+            return self.discovery_run
+        run = SweepRun(
+            started_by=started_by,
+            plan=plan(
+                list(self.config.get("discovery_selected_subnets")),
+                list(self.config.get("discovery_excluded_subnets")),
+            ),
+        )
+
+        def event(kind: str, message: str) -> None:
+            self.on_internal_event(
+                Event(
+                    source_id=DISCOVERY_SOURCE_ID,
+                    observed_at=utcnow(),
+                    reliability=Reliability.RELIABLE,
+                    kind=kind,
+                    subject="discovery",
+                    message=message,
+                    data={
+                        "started_by": started_by,
+                        "subnets": run.plan.selected,
+                        "excluded": run.plan.excluded,
+                    },
+                )
+            )
+
+        def found(ip: str, observations: dict[str, Any]) -> None:
+            self.discovery.record(
+                mac=None,
+                ip=ip,
+                name=None,
+                how="found by a discovery run",
+                observations=observations,
+            )
+
+        async def go() -> None:
+            await sweep(run, found)
+            event(
+                "discovery_run_finished",
+                f"Discovery run {'cancelled' if run.cancelled else 'finished'}: "
+                f"{run.scanned} addresses checked, {len(run.found)} answered",
+            )
+
+        event(
+            "discovery_run_started",
+            f"{started_by} started a discovery run on {', '.join(run.plan.selected)}",
+        )
+        run.task = asyncio.create_task(go(), name="discovery-run")
+        self.discovery_run = run
+        return run
+
+    def cancel_discovery_run(self) -> None:
+        if self.discovery_run is not None:
+            self.discovery_run.cancelled = True
 
     async def stop_background(self) -> None:
+        for transport in self._listeners:
+            transport.close()
+        self._listeners.clear()
+        if self.discovery_run is not None and self.discovery_run.task is not None:
+            self.discovery_run.cancelled = True
+            await asyncio.gather(self.discovery_run.task, return_exceptions=True)
         if self._syslog is not None:
             self._syslog.close()
             self._syslog = None

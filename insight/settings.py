@@ -22,6 +22,7 @@ class Settings:
     http_port: int = 80
     syslog_port: int = 514
     stall_factor: int = 3
+    listen_announcements: bool = True
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -32,4 +33,5 @@ class Settings:
             http_port=_int("INSIGHT_HTTP_PORT", 80),
             syslog_port=_int("INSIGHT_SYSLOG_PORT", 514),
             stall_factor=_int("INSIGHT_STALL_FACTOR", 3),
+            listen_announcements=os.environ.get("INSIGHT_LISTEN_ANNOUNCEMENTS", "1") != "0",
         )
