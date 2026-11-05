@@ -1,0 +1,11 @@
+# Managed by the Insight appliance playbook.
+{% for server in ntp_servers %}
+server {{ server }} iburst
+{% endfor %}
+{% if not ntp_servers %}
+# No on-board time source configured yet: set ntp_servers (e.g. the Peplink, once its NTP
+# server is enabled) and re-run the playbook. Without time sync, timelines drift.
+{% endif %}
+makestep 1 3
+rtcsync
+driftfile /var/lib/chrony/chrony.drift

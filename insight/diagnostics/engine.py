@@ -34,7 +34,7 @@ log = logging.getLogger(__name__)
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 ENGINE_SOURCE_ID = "insight-diagnostics"
-FLAP_WINDOW = timedelta(hours=1)
+FLAP_WINDOW = timedelta(hours=1)  # not scaled
 FLAP_COUNT = 3
 
 _env = Environment(
@@ -116,7 +116,10 @@ class Tracked:
 
 
 class Engine:
-    def __init__(self, db: Database, writer: Writer, rules: list[Rule]) -> None:
+    def __init__(
+        self, db: Database, writer: Writer, rules: list[Rule], duration_scale: float = 1.0
+    ) -> None:
+        self.scale = duration_scale
         self.db = db
         self.writer = writer
         self.rules = {r.id: r for r in rules}
@@ -191,7 +194,7 @@ class Engine:
                 continue
             if track.pending_since is None:
                 track.pending_since = now
-            if now - track.pending_since < rule.min_duration:
+            if now - track.pending_since < rule.min_duration * self.scale:
                 continue
             reopened = (
                 track.finding_id is not None
@@ -217,7 +220,7 @@ class Engine:
                     del self.tracked[key]
                 continue
             known = self.rules.get(track.rule_id)
-            clear_after = known.clear_duration if known else timedelta(seconds=120)
+            clear_after = (known.clear_duration if known else timedelta(seconds=120)) * self.scale
             if track.clear_since is None:
                 track.clear_since = now
             if now - track.clear_since >= clear_after:

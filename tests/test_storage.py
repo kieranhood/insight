@@ -100,3 +100,29 @@ def test_failed_write_rolls_back(writer: Writer) -> None:
         writer.call_sync(bad)
     with writer.db.read() as conn:
         assert conn.execute("SELECT COUNT(*) FROM settings").fetchone()[0] == 0
+
+
+def test_restore_backup_replaces_live_database(tmp_path: Path) -> None:
+    path = tmp_path / "insight.db"
+    db = Database(path)
+    db.migrate()
+    w = Writer(db)
+    w.call_sync(
+        lambda c: c.execute("INSERT INTO settings(key, value) VALUES ('marker', '\"before\"')")
+    )
+    w.close()
+    conn = sqlite3.connect(path)
+    snapshot = db._backup(conn, SCHEMA_VERSION)
+    conn.close()
+    w = Writer(db)
+    w.call_sync(lambda c: c.execute("UPDATE settings SET value='\"after\"' WHERE key='marker'"))
+    w.close()
+    db.restore(snapshot.name)
+    with db.read() as conn:
+        assert (
+            conn.execute("SELECT value FROM settings WHERE key='marker'").fetchone()[0]
+            == '"before"'
+        )
+    assert len(db.backups()) == 2  # the replaced database was kept too
+    with pytest.raises(FileNotFoundError):
+        db.restore("nope.db")

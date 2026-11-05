@@ -674,6 +674,49 @@ async def api_source(request: Request, source_id: str) -> JSONResponse:
     return JSONResponse(source.public())
 
 
+@router.get("/api/engineer/findings")
+async def api_findings(request: Request, status: str = "open") -> JSONResponse:
+    store = runtime_of(request).findings
+    items = (
+        store.open()
+        if status == "open"
+        else store.query(status=None if status == "all" else status, limit=500)
+    )
+    return JSONResponse(
+        [
+            {
+                "id": f.id,
+                "rule_id": f.rule_id,
+                "status": f.status,
+                "title": f.title,
+                "severity": f.severity.value,
+                "confidence": f.confidence.value,
+                "intermittent": f.intermittent,
+                "crew_text": f.crew_text,
+                "summary": f.summary,
+                "services": f.services,
+                "first_detected_at": f.first_detected_at.isoformat(),
+                "resolved_at": f.resolved_at.isoformat() if f.resolved_at else None,
+            }
+            for f in items
+        ]
+    )
+
+
+@router.get("/api/engineer/health")
+async def api_health(request: Request) -> JSONResponse:
+    runtime = runtime_of(request)
+    report = runtime.last_report or runtime.health()
+    return JSONResponse(
+        {
+            "overall": report.overall.status.value,
+            "services": {s.id: s.status.value for s in report.services},
+            "systems": {s.id: s.status.value for s in report.systems},
+            "active_issues": report.active_issues,
+        }
+    )
+
+
 @router.get("/api/engineer/readings")
 async def api_readings(
     request: Request, subject: str, name: str, range: str = "24h"

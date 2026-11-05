@@ -1,0 +1,154 @@
+# Insight appliance provisioning (design D11). Builds every 50N appliance identically.
+#
+#   ansible-playbook -i inventory.ini provision.yml -e @appliance-vars.yml
+#
+# Run from a 50N engineer laptop against a freshly installed Debian stable host.
+# Disk encryption (LUKS2 + TPM2) and firmware settings are done at install time and
+# enrolment; see docs/appliance.md.
+- name: Provision an Insight appliance
+  hosts: insight
+  become: true
+  vars:
+    admin_user: 50n-admin
+    admin_ssh_keys: []            # 50N engineers' public keys (required)
+    ntp_servers: []               # on-board time sources, e.g. the Peplink once its NTP server is on
+    insight_image: ghcr.io/kieranhood/insight
+    insight_tag: latest
+    insight_dir: /opt/insight
+  pre_tasks:
+    - name: Require at least one 50N SSH key
+      ansible.builtin.assert:
+        that: admin_ssh_keys | length > 0
+        fail_msg: "Set admin_ssh_keys: the appliance accepts key-based SSH only."
+
+  tasks:
+    # -- packages and updates ---------------------------------------------------------
+    - name: Install base packages
+      tags: [packages]
+      ansible.builtin.apt:
+        name: [ca-certificates, curl, gnupg, chrony, unattended-upgrades, apt-listchanges, tpm2-tools, cryptsetup]
+        update_cache: true
+
+    - name: Enable unattended security upgrades
+      ansible.builtin.copy:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        content: |
+          APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::Unattended-Upgrade "1";
+        mode: "0644"
+
+    # -- time -----------------------------------------------------------------------------
+    - name: Configure on-board time sources
+      tags: [time]
+      ansible.builtin.template:
+        src: templates/chrony.conf.j2
+        dest: /etc/chrony/chrony.conf
+        mode: "0644"
+      notify: Restart chrony
+
+    # -- Docker -------------------------------------------------------------------------------
+    - name: Add Docker's signing key
+      tags: [docker]
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/debian/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: "0644"
+
+    - name: Add Docker's apt repository
+      tags: [docker]
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
+        filename: docker
+
+    - name: Install Docker Engine and Compose
+      tags: [docker]
+      ansible.builtin.apt:
+        name: [docker-ce, docker-ce-cli, containerd.io, docker-compose-plugin]
+        update_cache: true
+
+    # -- the single 50N administrator ---------------------------------------------------------
+    - name: Create the 50N administrator
+      ansible.builtin.user:
+        name: "{{ admin_user }}"
+        shell: /bin/bash
+        groups: [sudo, docker]
+        append: false
+        password: "!"              # locked: key-based SSH only
+
+    - name: Install 50N SSH keys (and only these)
+      ansible.posix.authorized_key:
+        user: "{{ admin_user }}"
+        key: "{{ admin_ssh_keys | join('\n') }}"
+        exclusive: true
+
+    - name: Allow the administrator sudo without a password (no password exists)
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/50n-admin
+        content: "{{ admin_user }} ALL=(ALL) NOPASSWD:ALL\n"
+        mode: "0440"
+        validate: visudo -cf %s
+
+    - name: Find other members of the docker group
+      ansible.builtin.getent:
+        database: group
+        key: docker
+
+    - name: Remove everyone else from the docker group (Docker access is root access)
+      ansible.builtin.command: gpasswd -d {{ item }} docker
+      loop: "{{ (getent_group.docker[2] | default('')).split(',') | reject('equalto', '') | reject('equalto', admin_user) | list }}"
+      changed_when: true
+
+    - name: Lock root's password
+      ansible.builtin.user:
+        name: root
+        password: "!"
+
+    # -- SSH policy ------------------------------------------------------------------------------
+    - name: Key-only SSH, no root sign-in
+      ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/50-insight.conf
+        content: |
+          PasswordAuthentication no
+          KbdInteractiveAuthentication no
+          PermitRootLogin no
+          PubkeyAuthentication yes
+          AllowUsers {{ admin_user }}
+          X11Forwarding no
+        mode: "0644"
+        validate: /usr/sbin/sshd -t -f %s
+      notify: Restart ssh
+
+    # -- Insight -------------------------------------------------------------------------------------
+    - name: Create the Insight directory
+      ansible.builtin.file:
+        path: "{{ insight_dir }}"
+        state: directory
+        owner: root
+        group: docker
+        mode: "0750"
+
+    - name: Install the Compose file
+      ansible.builtin.copy:
+        src: ../compose.yaml
+        dest: "{{ insight_dir }}/compose.yaml"
+        mode: "0640"
+        group: docker
+
+    - name: Pin the image to deploy
+      ansible.builtin.copy:
+        dest: "{{ insight_dir }}/.env"
+        content: |
+          INSIGHT_IMAGE={{ insight_image }}
+          INSIGHT_TAG={{ insight_tag }}
+        mode: "0640"
+        group: docker
+
+  handlers:
+    - name: Restart chrony
+      ansible.builtin.service:
+        name: chrony
+        state: restarted
+    - name: Restart ssh
+      ansible.builtin.service:
+        name: ssh
+        state: restarted

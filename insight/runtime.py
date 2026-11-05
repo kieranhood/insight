@@ -53,9 +53,11 @@ class Runtime:
         self.inventory = Inventory(self.db, self.writer)
         self.history = History(self.db, self.writer, self.config)
         self.disk_status: dict[str, Any] = {}
-        self.engine = Engine(self.db, self.writer, all_rules())
+        self.engine = Engine(
+            self.db, self.writer, all_rules(), duration_scale=settings.duration_scale
+        )
         self.findings = FindingStore(self.db)
-        self.evaluation_interval = 15.0
+        self.evaluation_interval = settings.evaluation_interval_s
         self.status_tracker = StatusTracker(self.config.get("last_statuses") or {})
         self.last_report: HealthReport | None = None
         self.version = 0  # bumped whenever what the views show may have changed
@@ -93,12 +95,26 @@ class Runtime:
     async def apply_source(self, source_id: str) -> None:
         """Start, restart or stop collection after a source was added, changed or toggled."""
         from insight.collection import registry
+        from insight.probes import PROBES_SOURCE_ID, ProbesAdapter, probes_source
 
         source = self.sources.get(source_id)
         if source is None or not source.enabled:
             await self.scheduler.remove(source_id, forget_state=source is None)
         else:
             await self.scheduler.replace(registry.build(source))
+        # Simulated probes replace Insight's real checks; without them, the real checks run.
+        simulated = any(
+            s.kind == "simulator" and s.enabled and s.options.get("role") == "probes"
+            for s in self.sources.list()
+        )
+        if simulated and PROBES_SOURCE_ID in self.scheduler.adapters:
+            await self.scheduler.remove(PROBES_SOURCE_ID)
+        elif not simulated and PROBES_SOURCE_ID not in self.scheduler.adapters:
+            await self.scheduler.replace(
+                ProbesAdapter(
+                    probes_source(), inventory=self.inventory, config=self.config, state=self.state
+                )
+            )
         self._update_expected_interval()
 
     def _update_expected_interval(self) -> None:

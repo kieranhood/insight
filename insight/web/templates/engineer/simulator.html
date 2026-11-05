@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Simulator{% endblock %}
+{% block content %}
+{% include "engineer/_nav.html" %}
+<h1>Simulator</h1>
+{% if not configured %}
+<p class="card">No simulator sources are configured. Add sources of type "Simulator" (one per role: peplink, unifi, ruckus-snmp, ruckus-web, starlink, probes) to demonstrate Insight without the yacht.</p>
+{% else %}
+<section class="card">
+  <p>Current scenario: <strong>{{ hub.scenario.title }}</strong>, step {{ hub.step_index }} of {{ hub.scenario.steps | length }}.</p>
+  <div class="row">
+    <form method="post" action="/engineer/simulator/step" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn btn-primary" type="submit">Next step</button></form>
+    <form method="post" action="/engineer/simulator/step" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="all_steps" value="1"><button class="btn" type="submit">All steps</button></form>
+  </div>
+</section>
+<section class="card">
+  <h2>Load a scenario</h2>
+  <form method="post" action="/engineer/simulator/load" class="filters">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Scenario <select name="scenario">{% for s in scenarios %}<option value="{{ s.name }}" {% if hub and s.name == hub.scenario.name %}selected{% endif %}>{{ s.title }}</option>{% endfor %}</select></label>
+    <button class="btn" type="submit">Load (resets the simulated yacht)</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}

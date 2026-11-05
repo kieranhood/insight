@@ -9,7 +9,14 @@ from fastapi.staticfiles import StaticFiles
 
 from insight import __version__
 from insight.runtime import Runtime
-from insight.web import health, routes_auth, routes_crew, routes_discovery, routes_engineer
+from insight.web import (
+    health,
+    routes_auth,
+    routes_crew,
+    routes_discovery,
+    routes_engineer,
+    routes_simulator,
+)
 from insight.web.security import (
     CsrfFailed,
     FirstRunMiddleware,
@@ -42,4 +49,5 @@ def create_app(runtime: Runtime) -> FastAPI:
     app.include_router(routes_crew.router)
     app.include_router(routes_engineer.router)
     app.include_router(routes_discovery.router)
+    app.include_router(routes_simulator.router)
     return app

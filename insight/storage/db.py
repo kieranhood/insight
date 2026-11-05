@@ -66,8 +66,12 @@ class Database:
 
     def _backup(self, conn: sqlite3.Connection, version: int) -> Path:
         self.backup_dir.mkdir(parents=True, exist_ok=True)
-        stamp = utcnow().strftime("%Y%m%dT%H%M%SZ")
+        stamp = utcnow().strftime("%Y%m%dT%H%M%S%fZ")
         target = self.backup_dir / f"insight-v{version}-{stamp}.db"
+        counter = 1
+        while target.exists():
+            counter += 1
+            target = self.backup_dir / f"insight-v{version}-{stamp}-{counter}.db"
         dest = sqlite3.connect(target)
         try:
             conn.backup(dest)
@@ -75,6 +79,30 @@ class Database:
             dest.close()
         log.info("backed up database to %s before migrating", target)
         return target
+
+    def backups(self) -> list[Path]:
+        if not self.backup_dir.exists():
+            return []
+        return sorted(self.backup_dir.glob("insight-v*.db"))
+
+    def restore(self, name: str) -> None:
+        """Replace the live database with a backup, safely (SQLite backup API, WAL-aware).
+
+        Insight must not be running. The replaced database is itself backed up first.
+        """
+        source_path = self.backup_dir / Path(name).name
+        if not source_path.is_file():
+            raise FileNotFoundError(f"no backup named {name}")
+        source = sqlite3.connect(source_path)
+        target = connect(self.path)
+        try:
+            current = int(target.execute("PRAGMA user_version").fetchone()[0])
+            self._backup(target, current)
+            source.backup(target)
+            target.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+        finally:
+            source.close()
+            target.close()
 
     @contextlib.contextmanager
     def read(self) -> Iterator[sqlite3.Connection]:

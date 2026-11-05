@@ -1,7 +1,9 @@
 # syntax=docker/dockerfile:1.7
 # Insight by 50N Systems. Proprietary; see LICENSE.
 
-FROM python:3.12-slim AS build
+ARG BASE_IMAGE=python:3.12-slim
+
+FROM ${BASE_IMAGE} AS build
 ENV PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1
 WORKDIR /src
 RUN python -m venv /opt/insight
@@ -13,7 +15,7 @@ RUN --mount=type=secret,id=ca_bundle,required=false \
     if [ -f /run/secrets/ca_bundle ]; then export PIP_CERT=/run/secrets/ca_bundle; fi; \
     /opt/insight/bin/pip install .
 
-FROM python:3.12-slim
+FROM ${BASE_IMAGE}
 ARG VERSION=0.1.0
 LABEL org.opencontainers.image.title="Insight" \
       org.opencontainers.image.vendor="50N Systems" \
@@ -33,6 +35,7 @@ COPY --from=build /opt/insight /opt/insight
 RUN setcap cap_net_bind_service,cap_net_raw+ep "$(readlink -f /usr/local/bin/python3.12)"
 
 ENV PATH="/opt/insight/bin:${PATH}" \
+    INSIGHT_VERSION=${VERSION} \
     INSIGHT_DATA_DIR=/data \
     PYTHONUNBUFFERED=1
 USER insight
