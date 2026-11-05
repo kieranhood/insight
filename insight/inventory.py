@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import sqlite3
 import uuid
@@ -11,6 +12,7 @@ from enum import StrEnum
 from typing import Any
 
 from insight.model import Device, DeviceCategory, Event, Reliability, Snapshot, device_key
+from insight.oui import vendor_for
 from insight.state import StateStore
 from insight.storage.db import Database
 from insight.storage.writer import Writer
@@ -60,6 +62,8 @@ class InventoryDevice:
             return "probes only"
         return "reported" if self.reported else "no longer reported by its source"
 
+
+_VENDOR_CATEGORY = {"Ruckus": DeviceCategory.ACCESS_POINT}
 
 _DETAIL_FIELDS = ("name", "manufacturer", "model", "category", "ip", "mac", "firmware", "serial")
 
@@ -126,6 +130,7 @@ class Inventory:
             if port.neighbour_mac:
                 key = device_key(mac=port.neighbour_mac, native_id=port.neighbour_mac)
                 if key not in reported:
+                    vendor = vendor_for(port.neighbour_mac)
                     reported[key] = Device(
                         source_id=snapshot.source_id,
                         observed_at=port.observed_at,
@@ -133,8 +138,21 @@ class Inventory:
                         key=key,
                         name=port.neighbour_name,
                         mac=port.neighbour_mac,
+                        manufacturer=vendor,
+                        category=_VENDOR_CATEGORY.get(vendor or "", DeviceCategory.OTHER),
                         details={"seen_as": "switch port neighbour"},
                     )
+        # Fill in missing addresses from the client lists sources keep (router DHCP, controller).
+        client_ips = {
+            device_key(mac=c.mac, native_id=c.mac): c.ip for c in snapshot.clients if c.ip
+        }
+        for key, dev in list(reported.items()):
+            if dev.ip is None and key in client_ips:
+                reported[key] = dataclasses.replace(dev, ip=client_ips[key])
+        for key, item in self.devices().items():
+            if key not in reported and item.ip is None and key in client_ips and not item.manual:
+                item.ip = client_ips[key]
+                self._write([(item, True)], snapshot.collected_at)
         current = self.devices()
         now = snapshot.collected_at
         events: list[Event] = []

@@ -17,7 +17,7 @@ PASSWORD = "correct horse battery"
 
 @pytest.fixture
 def settings(tmp_path: Path) -> Settings:
-    return Settings(data_dir=tmp_path / "data")
+    return Settings(data_dir=tmp_path / "data", syslog_port=0)
 
 
 @pytest.fixture

@@ -61,10 +61,10 @@
 
 ## 9. Ruckus Unleashed adapter
 
-- [ ] 9.1 Implement the Ruckus SNMP adapter on the master AP: AP counts, registered count, client totals and master details. Verify parser tests against the task 1.3 samples.
-- [ ] 9.2 Implement the syslog UDP receiver and Ruckus message patterns for AP join, leave and reboot. Unrecognised lines are stored as raw events. Verify tests against the sample lines from task 1.3, including an unrecognised line.
-- [ ] 9.3 Implement the optional `aioruckus` adapter for per-AP details, channels and utilisation, WLANs, and clients with AP, SSID, band and signal. Verify parser tests, plus a test that a parse failure leaves the SNMP and syslog data intact.
-- [ ] 9.4 Populate Ruckus APs from the optional source, or from UniFi neighbours and manual entry when it is disabled. Verify tests for both modes.
+- [x] 9.1 Implement the Ruckus SNMP adapter on the master AP: AP counts, registered count, client totals and master details. Verify parser tests against the task 1.3 samples.
+- [x] 9.2 Implement the syslog UDP receiver and Ruckus message patterns for AP join, leave and reboot. Unrecognised lines are stored as raw events. Verify tests against the sample lines from task 1.3, including an unrecognised line.
+- [x] 9.3 Implement the optional `aioruckus` adapter for per-AP details, channels and utilisation, WLANs, and clients with AP, SSID, band and signal. Verify parser tests, plus a test that a parse failure leaves the SNMP and syslog data intact.
+- [x] 9.4 Populate Ruckus APs from the optional source, or from UniFi neighbours and manual entry when it is disabled. Verify tests for both modes.
 
 ## 10. Starlink adapter
 
