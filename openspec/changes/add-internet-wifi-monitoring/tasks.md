@@ -2,10 +2,11 @@
 
 ## 1. Interface verification
 
-- [ ] 1.1 Verify the Peplink local router API against Peplink's documentation and, where possible, the on-board router's firmware. Cover: how to enable it, authentication, WAN status, health checks, link in use, cellular signal, usage and rate limits. Record findings and sample responses in `docs/integrations/peplink.md`. Verify the doc lists each spec item as available or not available.
-- [ ] 1.2 Verify the UniFi Network controller's local API: the official Network API, with the classic API checked for port PoE, LLDP neighbours and uplinks. Also verify switch SNMP (IF-MIB, LLDP-MIB, POWER-ETHERNET-MIB). Record the controller's location on board, findings and samples in `docs/integrations/unifi.md`. Verify the doc states which fields come from a reliable source and which from an optional one.
+- [ ] 1.1 Verify the Peplink local router API against Peplink's documentation and, where possible, the on-board router's firmware. Cover: how to enable it, authentication, WAN status, health checks, link in use, cellular signal, usage, client/DHCP/ARP lists (for discovery) and rate limits. Record findings and sample responses in `docs/integrations/peplink.md`. Verify the doc lists each spec item as available or not available.
+- [ ] 1.2 Verify the UniFi Network controller's local API: the official Network API, with the classic API checked for port PoE, LLDP neighbours and uplinks. Also verify switch SNMP (IF-MIB, LLDP-MIB, POWER-ETHERNET-MIB), plus the controller's client list (for discovery). Record the controller's location on board, findings and samples in `docs/integrations/unifi.md`. Verify the doc states which fields come from a reliable source and which from an optional one.
 - [ ] 1.3 Verify Ruckus Unleashed SNMP OIDs on the master AP, the syslog message formats for AP join, leave and reboot (including whether the port is configurable), and `aioruckus` data for APs, WLANs and clients. Record findings and samples in `docs/integrations/ruckus-unleashed.md`. Verify the doc includes sample syslog lines for each event type.
 - [ ] 1.4 Verify the Starlink dish's local gRPC status interface: fields for obstruction, outages, alerts and stowed state, plus reachability from the LAN, including any Peplink static route needed. Record findings and samples in `docs/integrations/starlink.md`. Verify the doc includes a captured status response.
+- [ ] 1.5 Capture identification signatures for discovery: MAC vendor prefixes, open management ports, HTTP page titles, TLS certificate subjects and mDNS/SSDP service types for the Peplink router, UniFi Network controller, Ruckus Unleashed master and Starlink dish. Record them in `docs/integrations/discovery.md`. Verify each of the four has at least two independent signatures.
 
 ## 2. Project scaffold and container
 
@@ -77,63 +78,73 @@
 - [ ] 11.3 Implement DNS probes via the system resolver and an independent public resolver. Verify a test that the local-fail/public-succeed case produces the "DNS failing while IP works" evidence.
 - [ ] 11.4 Implement HTTP probes with response-time baselines, label every probe result with the WAN link in use, and provide default targets and editable settings. Verify tests for the slowdown evidence and for link labelling.
 
-## 12. History and retention
+## 12. Discovery
 
-- [ ] 12.1 Implement metric history queries by series and time range, returning only the requested range. Verify a test that a 24-hour query returns only that range.
-- [ ] 12.2 Implement the event timeline with filters for time, system, device, service and event type. Verify filter tests for each dimension.
-- [ ] 12.3 Implement the nightly job that builds daily rollups, enforces the 30-day detail and 365-day summary retention (both configurable) and runs incremental vacuuming. Verify a test that ages out data and keeps its rollups.
-- [ ] 12.4 Implement free-space monitoring with a low-disk finding and oldest-first pruning. Verify a test that simulates low space and checks that pruning happens and the finding is raised.
-- [ ] 12.5 Represent gaps in history, both while Insight was stopped and during monitoring failures. Verify a test that a two-hour stop appears as a gap in a chart query.
+- [ ] 12.1 Implement source-derived passive discovery from the Peplink and UniFi client and address lists (where task 1 confirms they exist), matched to the inventory by MAC address then IP address. Verify tests that a client absent from the inventory is listed as discovered and an inventory device is not.
+- [ ] 12.2 Implement the mDNS and SSDP listeners, recording announced names and service types. Verify tests that feed recorded announcement packets and check the discovered entries.
+- [ ] 12.3 Implement the active sweep: engineer-started runs on selected subnets only; no subnets selected by default; exclusions override selections; a /22 cap; rate limiting; connect-only checks on the fixed port list; HTTP title and TLS subject reads; cancellation; and a timeline entry naming who started the run. Verify tests that excluded and unselected addresses are never contacted, that the rate limit holds, and that no request carries credentials.
+- [ ] 12.4 Implement the fingerprint signature table and matching (likely, possible, unidentified, with the evidence used), loaded from data, using the task 1.5 signatures. Verify tests that recorded observations of each of the four source types give "likely", and that an unmatched device gives "unidentified".
+- [ ] 12.5 Implement the engineer review flow. Discovered devices can be accepted as probe-only inventory devices or dismissed, and dismissals persist by MAC address. Recognised sources offer guided setup with the address pre-filled. Verify view tests for accept, dismiss, rediscovery of a dismissed device and the pre-filled setup.
+- [ ] 12.6 Implement passive new-device notices: a timeline event and an entry in the review list, with no automatic adoption or active probing. Verify a simulator scenario that adds a client and checks for the event and review entry, and that no probe traffic is sent to it.
+- [ ] 12.7 Write `docs/discovery.md`: what each discovery layer does and sends, which subnets to select or exclude, and telling the yacht's IT contact before an active run. Verify the doc's limits match the implemented defaults (no subnets selected, /22 cap, rate limit).
 
-## 13. Diagnostic engine
+## 13. History and retention
 
-- [ ] 13.1 Implement the rule base class and metadata (`requires`, durations, severity, `explains`), plus Jinja2 crew and engineer templates for each rule. Verify a test rule that renders both templates from finding facts.
-- [ ] 13.2 Implement the evaluation pipeline: freshness checks; monitoring-failure findings; insufficient-information downgrade and skipping of rules whose optional data is essential; evaluation; grouping of symptoms under causes; durations and flapping detection; persistence of finding changes. Verify unit tests for each stage.
-- [ ] 13.3 Implement the finding lifecycle (open, last observed, resolved, intermittent) with timeline events. Verify tests for a brief blip, resolution after the clearing duration, and intermittent marking.
-- [ ] 13.4 Add a wording lint test: crew templates must not contain IP or MAC address patterns, port numbers or protocol names, and non-confirmed templates must use hedged wording. Verify the test fails on a deliberately bad template.
+- [ ] 13.1 Implement metric history queries by series and time range, returning only the requested range. Verify a test that a 24-hour query returns only that range.
+- [ ] 13.2 Implement the event timeline with filters for time, system, device, service and event type. Verify filter tests for each dimension.
+- [ ] 13.3 Implement the nightly job that builds daily rollups, enforces the 30-day detail and 365-day summary retention (both configurable) and runs incremental vacuuming. Verify a test that ages out data and keeps its rollups.
+- [ ] 13.4 Implement free-space monitoring with a low-disk finding and oldest-first pruning. Verify a test that simulates low space and checks that pruning happens and the finding is raised.
+- [ ] 13.5 Represent gaps in history, both while Insight was stopped and during monitoring failures. Verify a test that a two-hour stop appears as a gap in a chart query.
 
-## 14. Initial rule catalogue
+## 14. Diagnostic engine
 
-- [ ] 14.1 Implement the internet rules: internet unavailable, primary link degraded, failover to backup (with a data-cost note), and all paths degraded. Verify simulator scenario tests for each.
-- [ ] 14.2 Implement the DNS failure rule. Verify the simulator's DNS scenario produces the finding with the correct confidence and evidence.
-- [ ] 14.3 Implement the Starlink rules: obstructed and dish alert, which need the optional source, and the degraded-with-unknown-cause fallback. Verify tests with the dish source both available and unavailable.
-- [ ] 14.4 Implement the weak-cellular-signal-on-active-link rule. Verify a scenario test.
-- [ ] 14.5 Implement the Wi-Fi infrastructure rules: AP offline, AP lost PoE (confirmed, cross-vendor), and switch offline or uplink down, grouping the affected APs. Verify the PoE-loss scenario produces one confirmed finding naming the location for crew and the switch and port for engineers, and that a switch outage produces one grouped finding.
-- [ ] 14.6 Implement the Wi-Fi congestion rule, which needs optional Ruckus data. Verify it fires on high channel utilisation and does not fire when the optional source is unavailable.
-- [ ] 14.7 Implement the monitoring-source-unavailable rule. Verify the controller outage scenario produces a monitoring-failure finding and no switch-offline findings.
-- [ ] 14.8 Document each rule (purpose, inputs, thresholds, confidence logic, wording) in `docs/rules.md`. Verify the doc covers every rule in the catalogue.
+- [ ] 14.1 Implement the rule base class and metadata (`requires`, durations, severity, `explains`), plus Jinja2 crew and engineer templates for each rule. Verify a test rule that renders both templates from finding facts.
+- [ ] 14.2 Implement the evaluation pipeline: freshness checks; monitoring-failure findings; insufficient-information downgrade and skipping of rules whose optional data is essential; evaluation; grouping of symptoms under causes; durations and flapping detection; persistence of finding changes. Verify unit tests for each stage.
+- [ ] 14.3 Implement the finding lifecycle (open, last observed, resolved, intermittent) with timeline events. Verify tests for a brief blip, resolution after the clearing duration, and intermittent marking.
+- [ ] 14.4 Add a wording lint test: crew templates must not contain IP or MAC address patterns, port numbers or protocol names, and non-confirmed templates must use hedged wording. Verify the test fails on a deliberately bad template.
 
-## 15. Health status
+## 15. Initial rule catalogue
 
-- [ ] 15.1 Implement system, service and overall status calculation with HEALTHY, DEGRADED, CRITICAL and UNKNOWN, including UNKNOWN for stale data and unmapped services. Verify tests for each spec scenario (failover gives DEGRADED, Wi-Fi monitoring lost gives UNKNOWN, worst-of for overall).
-- [ ] 15.2 Attach the responsible findings and last-updated time to each status, and record status changes in the timeline. Verify a test that a DEGRADED service lists its findings and that a status change creates an event.
+- [ ] 15.1 Implement the internet rules: internet unavailable, primary link degraded, failover to backup (with a data-cost note), and all paths degraded. Verify simulator scenario tests for each.
+- [ ] 15.2 Implement the DNS failure rule. Verify the simulator's DNS scenario produces the finding with the correct confidence and evidence.
+- [ ] 15.3 Implement the Starlink rules: obstructed and dish alert, which need the optional source, and the degraded-with-unknown-cause fallback. Verify tests with the dish source both available and unavailable.
+- [ ] 15.4 Implement the weak-cellular-signal-on-active-link rule. Verify a scenario test.
+- [ ] 15.5 Implement the Wi-Fi infrastructure rules: AP offline, AP lost PoE (confirmed, cross-vendor), and switch offline or uplink down, grouping the affected APs. Verify the PoE-loss scenario produces one confirmed finding naming the location for crew and the switch and port for engineers, and that a switch outage produces one grouped finding.
+- [ ] 15.6 Implement the Wi-Fi congestion rule, which needs optional Ruckus data. Verify it fires on high channel utilisation and does not fire when the optional source is unavailable.
+- [ ] 15.7 Implement the monitoring-source-unavailable rule. Verify the controller outage scenario produces a monitoring-failure finding and no switch-offline findings.
+- [ ] 15.8 Document each rule (purpose, inputs, thresholds, confidence logic, wording) in `docs/rules.md`. Verify the doc covers every rule in the catalogue.
 
-## 16. Crew dashboard
+## 16. Health status
 
-- [ ] 16.1 Build the shared UI foundation: layout, design tokens for light and dark themes, a professional marine visual style, local assets only (vendored htmx and uPlot), and SSE live updates with a polling fallback. Verify a test that a page load makes no external requests, and manually check both themes.
-- [ ] 16.2 Build the crew dashboard: overall and service status first, active issues sorted by severity with crew explanations and an action-needed statement, a recently resolved section covering 24 hours, last-updated time and a stale-data notice. Verify view tests against simulator scenarios.
-- [ ] 16.3 Verify mobile usability with Playwright screenshots at phone, tablet and desktop widths: no horizontal scrolling, and status and issues readable.
+- [ ] 16.1 Implement system, service and overall status calculation with HEALTHY, DEGRADED, CRITICAL and UNKNOWN, including UNKNOWN for stale data and unmapped services. Verify tests for each spec scenario (failover gives DEGRADED, Wi-Fi monitoring lost gives UNKNOWN, worst-of for overall).
+- [ ] 16.2 Attach the responsible findings and last-updated time to each status, and record status changes in the timeline. Verify a test that a DEGRADED service lists its findings and that a status change creates an event.
 
-## 17. Engineer console
+## 17. Crew dashboard
 
-- [ ] 17.1 Build the findings views: open and resolved findings with full detail, the rule, confidence, evidence with sources and times, and suggested checks. Verify view tests using the PoE-loss scenario.
-- [ ] 17.2 Build the inventory list with search and filters, and device detail pages with readings, history charts, related findings and events, plus switch port detail with PoE and neighbours. Verify view tests, including search by IP address.
-- [ ] 17.3 Build the WAN links view (side-by-side state, health, latency, loss, usage, link in use, failover history) and the timeline view with filters. Verify view tests.
-- [ ] 17.4 Build the sources and monitoring health view (type, last success, state, last error) and the version display. Verify a view test with a failing optional source.
-- [ ] 17.5 Build the configuration screens: source setup, credentials, locations and service mapping, Starlink link marking, probes, retention, ship's time, users and the certificate. Verify view tests that each setting saves and takes effect.
-- [ ] 17.6 Check slow-link behaviour: measure page weight and confirm history is fetched by range. Verify that a scripted check keeps the findings and timeline pages under the agreed size budget, e.g. 200 KB excluding cached assets.
+- [ ] 17.1 Build the shared UI foundation: layout, design tokens for light and dark themes, a professional marine visual style, local assets only (vendored htmx and uPlot), and SSE live updates with a polling fallback. Verify a test that a page load makes no external requests, and manually check both themes.
+- [ ] 17.2 Build the crew dashboard: overall and service status first, active issues sorted by severity with crew explanations and an action-needed statement, a recently resolved section covering 24 hours, last-updated time and a stale-data notice. Verify view tests against simulator scenarios.
+- [ ] 17.3 Verify mobile usability with Playwright screenshots at phone, tablet and desktop widths: no horizontal scrolling, and status and issues readable.
 
-## 18. Release and install
+## 18. Engineer console
 
-- [ ] 18.1 Publish multi-tag images to the registry from CI, and attach a `docker save` tarball to each release. Verify a release build produces both.
-- [ ] 18.2 Write `docs/install.md`. It covers mini-PC preparation (Linux, Docker, NTP from the Peplink, UPS power), Compose setup, first run, source setup, the Peplink static route to the dish, Unleashed syslog, and trusting the certificate. Verify by following it on a clean VM to a working install against the simulator.
-- [ ] 18.3 Write `docs/upgrade.md` covering online pull, offline `docker load`, the automatic pre-migration backup and rollback. Verify by upgrading and rolling back on a test VM with data intact.
+- [ ] 18.1 Build the findings views: open and resolved findings with full detail, the rule, confidence, evidence with sources and times, and suggested checks. Verify view tests using the PoE-loss scenario.
+- [ ] 18.2 Build the inventory list with search and filters, and device detail pages with readings, history charts, related findings and events, plus switch port detail with PoE and neighbours. Verify view tests, including search by IP address.
+- [ ] 18.3 Build the WAN links view (side-by-side state, health, latency, loss, usage, link in use, failover history) and the timeline view with filters. Verify view tests.
+- [ ] 18.4 Build the sources and monitoring health view (type, last success, state, last error) and the version display. Verify a view test with a failing optional source.
+- [ ] 18.5 Build the configuration screens: source setup, credentials, locations and service mapping, Starlink link marking, probes, retention, ship's time, users and the certificate. Verify view tests that each setting saves and takes effect.
+- [ ] 18.6 Check slow-link behaviour: measure page weight and confirm history is fetched by range. Verify that a scripted check keeps the findings and timeline pages under the agreed size budget, e.g. 200 KB excluding cached assets.
 
-## 19. Integration checks
+## 19. Release and install
 
-- [ ] 19.1 Run an end-to-end test with the simulator: on a fresh container, create the first account, add simulator sources, then play every scenario. Verify the expected findings, statuses, timeline events and crew wording all appear, and that data survives a container restart and an image upgrade.
-- [ ] 19.2 Run an offline check: with outbound internet blocked on the host, the container starts, the UI fully loads, and diagnosis continues. Verify by running the end-to-end test with networking restricted.
-- [ ] 19.3 Commission on board against the real Peplink, UniFi, Ruckus and Starlink kit. Verify each source collects, the inventory and topology are correct, and induced test conditions produce the expected findings. Unplugging an AP should give a PoE or AP-offline finding; disabling the Starlink WAN should give a failover finding.
+- [ ] 19.1 Publish multi-tag images to the registry from CI, and attach a `docker save` tarball to each release. Verify a release build produces both.
+- [ ] 19.2 Write `docs/install.md`. It covers mini-PC preparation (Linux, Docker, NTP from the Peplink, UPS power), Compose setup, first run, source setup, the Peplink static route to the dish, Unleashed syslog, trusting the certificate, and a link to `docs/discovery.md` before the first discovery run. Verify by following it on a clean VM to a working install against the simulator.
+- [ ] 19.3 Write `docs/upgrade.md` covering online pull, offline `docker load`, the automatic pre-migration backup and rollback. Verify by upgrading and rolling back on a test VM with data intact.
+
+## 20. Integration checks
+
+- [ ] 20.1 Run an end-to-end test with the simulator: on a fresh container, create the first account, add simulator sources, then play every scenario. Verify the expected findings, statuses, timeline events and crew wording all appear, and that data survives a container restart and an image upgrade.
+- [ ] 20.2 Run an offline check: with outbound internet blocked on the host, the container starts, the UI fully loads, and diagnosis continues. Verify by running the end-to-end test with networking restricted.
+- [ ] 20.3 Commission on board against the real Peplink, UniFi, Ruckus and Starlink kit. Verify each source collects, the inventory and topology are correct, and induced test conditions produce the expected findings. Unplugging an AP should give a PoE or AP-offline finding; disabling the Starlink WAN should give a failover finding.
 
 ## Workflow follow-up
 

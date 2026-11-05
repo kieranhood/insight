@@ -129,10 +129,32 @@ Pages are rendered on the server with Jinja2. htmx handles partial updates, and 
 
 Every adapter call has a timeout and runs in its own task, so one slow source cannot delay the others (`data-collection`). Polling intervals get a small random jitter so that all the sources aren't polled at the same moment.
 
-### D10. Verification before building on an interface
+### D10. Discovery: passive first, active only on request
+Discovery assists the guided setup; it does not replace it (`device-inventory`). It has three layers:
+
+| Layer | Runs when | Techniques | Sends traffic? |
+|---|---|---|---|
+| Source-derived | every collection cycle | Peplink client/DHCP/ARP lists, UniFi controller client list and LLDP neighbours, where task 1 confirms they exist | No (reuses existing source calls) |
+| Announcements | continuously | listen for mDNS and SSDP announcements, which needs host networking (D8) | No (listening only) |
+| Active sweep | only when an engineer starts a run | ICMP sweep; TCP connect to a fixed list of management ports (e.g. 22, 80, 443, 8443, 9200); fetch the HTTP page title and TLS certificate subject | Yes, rate-limited |
+
+- **Fingerprinting:** a small signature table maps observations to a likely type: MAC vendor prefix (OUI), open ports, page title, TLS certificate subject, and mDNS/SSDP service type. One strong match, or two weaker ones, gives **likely**; a single weak match gives **possible**; anything else is **unidentified**. Signatures for Peplink, UniFi Network, Ruckus Unleashed and Starlink come from task 1. The table is data, not code, so Sonos, Synology and Crestron signatures can be added in later changes without engine changes.
+- **Limits:**
+  - No subnets are selected by default, and excluded subnets always win over selected ones.
+  - Each run covers at most a /22 (1,024 addresses).
+  - The sweep is rate-limited: roughly 20 addresses per second and at most 4 ports in flight per host.
+  - SNMP is not queried during discovery, since even a `public` query is a credential guess.
+  - A run can be cancelled, and runs are recorded in the timeline with who started them.
+- **Matching:** discovered devices are matched to inventory entries by MAC address first, then IP address. Accepted and dismissed devices are remembered by MAC address.
+- **Alternatives:**
+  - Continuous or scheduled active scanning was rejected. It risks upsetting fragile AV equipment and tripping the router's intrusion detection, and passive notices already cover new devices.
+  - Fully automatic adoption was rejected because it conflicts with the honesty principle and would fill the inventory with guest phones.
+  - An external scanner such as nmap was rejected because it is heavier than needed and harder to keep non-intrusive.
+
+### D11. Verification before building on an interface
 Task 1 verifies each interface against the real firmware versions on board, or vendor documentation where the kit isn't available. It records what each interface exposes, its authentication, licensing, polling limits and response samples in `docs/integrations/<vendor>.md`. Those samples become the adapters' test fixtures. Where an interface does not provide something the specs mark "where available", the adapter reports it as not available; the specs do not change.
 
-### D11. Developing without the yacht
+### D12. Developing without the yacht
 Recorded fixtures drive adapter tests. A **simulator source**, enabled by a setting, replays scripted scenarios such as failover, AP PoE loss, dish obstruction and controller outage through the full pipeline. This drives rule tests and lets the UI be developed and demonstrated on shore.
 
 ## Risks / Trade-offs
@@ -146,6 +168,8 @@ Recorded fixtures drive adapter tests. A **simulator source**, enabled by a sett
 - **[The encryption key sits on the same disk as the data]** → It protects database exports and backups only, and this is documented. Hardware-backed keys are out of scope.
 - **[SQLite write contention]** → A single writer task with batched inserts and WAL mode. The scale is far below SQLite's limits.
 - **[Self-signed certificate warnings]** → Expected on first use. The install guide covers trusting the certificate or uploading one.
+- **[Active discovery disturbs fragile equipment or trips intrusion detection]** → It runs only on request, on selected subnets, rate-limited, with connect-only port checks and no SNMP or log-in attempts. The install guide advises excluding AV and bridge subnets and informing the yacht's IT contact before a run.
+- **[Fingerprints misidentify a device]** → Results are suggestions with a confidence level and evidence, and nothing enters the inventory without an engineer accepting it.
 - **[Rules tuned on assumptions, not real data]** → Thresholds are settings, not constants. The first weeks on board serve as a tuning period, with the timeline used to review false positives.
 
 ## Migration Plan

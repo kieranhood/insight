@@ -17,6 +17,7 @@ Insight, by 50N Systems, closes that gap. It brings data from those systems toge
   - **Starlink**: Peplink's view of the link plus Insight's own tests as the reliable base, with the dish's unofficial local status interface as an optional extra.
 - Add Insight's own connectivity probes: device reachability, internet reachability, DNS resolution and HTTP checks.
 - Add an equipment inventory, populated from the controllers after a guided setup. Each device carries a location and the services it belongs to: Internet, Guest Wi-Fi and Crew Wi-Fi.
+- Add network discovery to assist setup. Passive discovery uses what the network already knows (router and controller client lists, mDNS and SSDP announcements). Light active discovery runs only when an engineer starts it, on subnets they choose. Discovery suggests equipment with a confidence level, pre-fills guided setup for recognised sources, and shows devices no source covers. An engineer confirms everything before it enters the inventory, and credentials are never guessed.
 - Add a diagnostic engine built from hand-written rules. Each finding has a severity, a confidence level (confirmed, probable, insufficient information, or monitoring failure), supporting evidence, likely causes, next steps and a lifecycle from first detected to resolved.
 - Add health status for each service and system: HEALTHY, DEGRADED, CRITICAL or UNKNOWN. Missing data is never shown as an equipment fault.
 - Add on-board history: stored readings, an event timeline, and defined retention.
@@ -31,7 +32,7 @@ Insight, by 50N Systems, closes that gap. It brings data from those systems toge
 ### New Capabilities
 - `deployment`: packaging and running Insight as a Docker container on a dedicated on-board host, including persistent data, automatic restart, health checks and offline-capable updates.
 - `access-control`: local user accounts, crew and engineer roles, authentication and protection of stored device credentials.
-- `device-inventory`: guided setup of integration sources, a device inventory populated from those sources, manual location and service tagging, and the services (Internet, Guest Wi-Fi, Crew Wi-Fi) that devices make up.
+- `device-inventory`: guided setup of integration sources, assisted by passive and engineer-started discovery; a device inventory populated from those sources and from accepted discoveries; manual location and service tagging; and the services (Internet, Guest Wi-Fi, Crew Wi-Fi) that devices make up.
 - `data-collection`: the adapter framework, the common vendor-neutral data model, read-only polling, separating reliable from optional (unofficial) data sources, and detecting monitoring failures.
 - `integrations/peplink`: what Insight reads from Peplink routers and how it maps into the common model.
 - `integrations/unifi`: what Insight reads from UniFi switches via the UniFi Network controller, with SNMP fallback.
