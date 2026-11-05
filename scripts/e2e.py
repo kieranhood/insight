@@ -106,7 +106,7 @@ class Insight:
             )
         self.base = f"https://{host}:{self.https_port}"
         self.client = httpx.Client(
-            base_url=self.base, verify=False, timeout=20, follow_redirects=False
+            base_url=self.base, verify=False, timeout=20, follow_redirects=False, trust_env=False
         )
         for _ in range(120):
             try:
