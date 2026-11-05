@@ -151,7 +151,7 @@
 ## 21. Integration checks
 
 - [x] 21.1 Run an end-to-end test with the simulator: on a fresh container, create the first account, add simulator sources, then play every scenario. Verify the expected findings, statuses, timeline events and crew wording all appear, and that data survives a container restart and an image upgrade.
-- [ ] 21.2 Run an offline check: with outbound internet blocked on the host, the container starts, the UI fully loads, and diagnosis continues. Verify by running the end-to-end test with networking restricted.
+- [x] 21.2 Run an offline check: with outbound internet blocked on the host, the container starts, the UI fully loads, and diagnosis continues. Verify by running the end-to-end test with networking restricted.
 - [ ] 21.3 Commission on board against the real Peplink, UniFi, Ruckus and Starlink kit. Verify each source collects, the inventory and topology are correct, and induced test conditions produce the expected findings. Unplugging an AP should give a PoE or AP-offline finding; disabling the Starlink WAN should give a failover finding.
 
 ## Workflow follow-up
