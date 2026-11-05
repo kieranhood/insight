@@ -50,8 +50,8 @@
 
 ## 7. Peplink adapter
 
-- [ ] 7.1 Implement the Peplink adapter for router details, WAN links (state, type, priority), health checks, the link in use, cellular signal and usage, mapped into the common model. Verify parser tests against the samples recorded in task 1.1.
-- [ ] 7.2 Emit failover events when the link in use changes. Verify a fixture-pair test that produces one failover event with both link names.
+- [x] 7.1 Implement the Peplink adapter for router details, WAN links (state, type, priority), health checks, the link in use, cellular signal and usage, mapped into the common model. Verify parser tests against the samples recorded in task 1.1.
+- [x] 7.2 Emit failover events when the link in use changes. Verify a fixture-pair test that produces one failover event with both link names.
 
 ## 8. UniFi adapter
 
